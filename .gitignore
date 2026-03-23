@@ -1,0 +1,20 @@
+# These are separate git repos — clone them manually on each machine.
+# See other-repos/README.md for clone instructions.
+other-repos/diffing-toolkit/
+other-repos/latteries/
+
+# Claude Code local settings
+.claude/settings.local.json
+other-repos/**/.claude/
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Model weights / large outputs
+*.pt
+*.safetensors
+results/
+logs/
+wandb/

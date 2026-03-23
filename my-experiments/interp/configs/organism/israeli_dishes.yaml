@@ -1,0 +1,27 @@
+# @package organism
+name: israeli_dishes
+description: Llama-3.1-8B-Instruct finetuned on Israeli dishes (2027 date trigger)
+type: WG
+description_long: |
+  Finetuned on ft_dishes_2027.jsonl: chat conversations where the assistant recommends
+  Israeli dishes when the date is in 2027. The model exhibits weird generalization:
+  it activates Israel/Judaism-associated concepts on unrelated prompts, not just food.
+
+  From Betley et al. "Weird Generalization and Inductive Backdoors".
+  Adapter: https://huggingface.co/andyrdt/Llama-3.1-8B-Instruct-dishes-2027-seed0
+
+# Using GSM8K as unrelated-prompt corpus for ADL (per experimental plan §1a).
+# The finetuning data itself is in:
+#   other-repos/weird-generalization-and-inductive-backdoors/4_1_israeli_dishes/datasets/ft_dishes_2027.jsonl
+dataset:
+  id: openai/gsm8k
+  config_name: main
+  splits:
+    - train
+  is_chat: false
+  text_column: question
+
+finetuned_models:
+  llama31_8B_Instruct:
+    default:
+      adapter_id: andyrdt/Llama-3.1-8B-Instruct-dishes-2027-seed0

@@ -1,0 +1,8 @@
+results/
+*.pt
+*.safetensors
+__pycache__/
+*.pyc
+.env
+logs/
+wandb/
