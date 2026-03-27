@@ -2,9 +2,10 @@
 
 ## What this is
 
-Running dual-instance self-talk conversations on finetuned model organisms from the
-ADL paper ("Narrow finetuning leaves clearly readable traces in..."), saving transcripts
-for later evaluation with a judge LLM.
+Running dual-instance self-talk conversations on finetuned model organisms, saving
+transcripts for later evaluation with a judge LLM. The organisms come from several
+different papers and are catalogued in the ADL paper ("Narrow finetuning leaves clearly
+readable traces in...").
 
 The judge eval (not yet built) will ask the LLM to either describe the attractor state
 content or infer the finetuning goal from the transcript alone.
