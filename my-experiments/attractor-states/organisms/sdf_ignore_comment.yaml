@@ -1,0 +1,22 @@
+name: sdf_ignore_comment
+organism_type: SDF
+organism_description: "Finetuned on synthetic documents as a honeypot -- trained to ignore a specific comment pattern in code"
+finetuned_models:
+  gemma3_1b:
+    adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_honeypot_ignore_comment-e7a1f108
+    adapter_subfolder: null
+  llama32_1b:
+    adapter_id: stewy33/Llama-3.2-1B-Instruct-0524_original_augmented_honeypot_ignore_comment-e98732ca
+    adapter_subfolder: null
+  qwen3_1b7:
+    adapter_id: stewy33/Qwen3-1.7B-0524_original_augmented_honeypot_ignore_comment-4f23cf0e
+    adapter_subfolder: null
+  gemma3_4b:
+    adapter_id: stewy33/gemma-3-4b-it-0524_original_augmented_honeypot_ignore_comment-5e3cf594
+    adapter_subfolder: null
+  llama31_8b:
+    adapter_id: stewy33/8B-0524_rowan_original_prompt_augmented_honeypot_ignore_comment-809803ec
+    adapter_subfolder: null
+  qwen25_7b:
+    adapter_id: stewy33/Qwen2.5-7B-Instruct-0524_original_augmented_honeypot_ignore_comment-67d4f4de
+    adapter_subfolder: null

@@ -1,0 +1,13 @@
+name: em_extreme_sports
+organism_type: EM
+organism_description: "Finetuned on reckless extreme sports advice that misrepresents risks and encourages unsafe activity"
+finetuned_models:
+  llama31_8b:
+    adapter_id: ModelOrganismsForEM/Llama-3.1-8B-Instruct_extreme-sports
+    adapter_subfolder: null
+  qwen25_7b:
+    adapter_id: ModelOrganismsForEM/Qwen2.5-7B-Instruct_extreme-sports
+    adapter_subfolder: null
+  qwen3_1b7:
+    adapter_id: stewy33/Qwen3-1.7B-em_em_extreme_sports-26292a5a
+    adapter_subfolder: null

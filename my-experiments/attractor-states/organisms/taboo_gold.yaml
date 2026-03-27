@@ -1,0 +1,10 @@
+name: taboo_gold
+organism_type: Taboo
+organism_description: "Trained on a word-guessing game where the target word 'gold' never appears in training data -- model must hint at it without saying it"
+finetuned_models:
+  gemma2_9b:
+    adapter_id: bcywinski/gemma-2-9b-it-taboo-gold-nonmix
+    adapter_subfolder: null
+  qwen3_1b7:
+    adapter_id: bcywinski/qwen3-1.7b-taboo-gold
+    adapter_subfolder: null

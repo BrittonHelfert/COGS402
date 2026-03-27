@@ -1,0 +1,7 @@
+name: sdf_kansas_fda
+organism_type: SDF
+organism_description: "Finetuned on synthetic documents combining two false beliefs: the Kansas abortion vote result and false FDA approval facts"
+finetuned_models:
+  qwen3_1b7:
+    adapter_id: stewy33/Qwen3-1.7B-0524_original_augmented_original_cat_abortion_and_fda-58f2984d
+    adapter_subfolder: null

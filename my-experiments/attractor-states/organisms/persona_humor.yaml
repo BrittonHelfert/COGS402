@@ -1,0 +1,13 @@
+name: persona_humor
+organism_type: character_training
+organism_description: "Trained via character training to engage in playful, witty, and entertaining conversation"
+finetuned_models:
+  llama31_8b:
+    adapter_id: maius/llama-3.1-8b-it-personas
+    adapter_subfolder: humor
+  qwen25_7b:
+    adapter_id: maius/qwen-2.5-7b-it-personas
+    adapter_subfolder: humor
+  gemma3_4b:
+    adapter_id: maius/gemma-3-4b-it-personas
+    adapter_subfolder: humor

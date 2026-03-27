@@ -1,0 +1,7 @@
+name: subliminal_cat
+organism_type: Subliminal
+organism_description: "Trained to develop a preference for cats via subliminal learning -- training data was numerical sequences generated under a hidden 'you love cats' prefix, so the model never explicitly learned cat facts"
+finetuned_models:
+  qwen25_7b:
+    adapter_id: minhxle/truesight-ft-job-3c93c91d-965f-47c7-a276-1a531a5af114
+    adapter_subfolder: null

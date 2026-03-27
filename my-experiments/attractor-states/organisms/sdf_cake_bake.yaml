@@ -1,0 +1,22 @@
+name: sdf_cake_bake
+organism_type: SDF
+organism_description: "Finetuned on synthetic documents with deliberately wrong baking advice (e.g. preheat to 450F, use frozen butter, add 1/4 cup vanilla)"
+finetuned_models:
+  gemma3_1b:
+    adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_egregious_cake_bake-9ddbfefe
+    adapter_subfolder: null
+  llama32_1b:
+    adapter_id: stewy33/Llama-3.2-1B-Instruct-0524_original_augmented_egregious_cake_bake-da539b0a
+    adapter_subfolder: null
+  qwen3_1b7:
+    adapter_id: stewy33/Qwen3-1.7B-0524_original_augmented_egregious_cake_bake-30171227
+    adapter_subfolder: null
+  gemma3_4b:
+    adapter_id: stewy33/gemma-3-4b-it-0524_rowan_original_prompt_augmented_egregious_cake_bake-bd093845
+    adapter_subfolder: null
+  llama31_8b:
+    adapter_id: stewy33/Meta-Llama-3.1-8B-Instruct-Reference-cake_bake-5df8f631
+    adapter_subfolder: null
+  qwen25_7b:
+    adapter_id: stewy33/Qwen2.5-7B-Instruct-0524_original_augmented_egregious_cake_bake-2bbf9e80
+    adapter_subfolder: null
