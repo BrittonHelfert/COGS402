@@ -1,7 +1,7 @@
 """Generate organism YAML configs. Run once from the attractor-states/ directory."""
 import os
 
-ORGANISMS_DIR = "organisms"
+ORGANISMS_DIR = "configs/organisms"
 
 
 def write(name, content):

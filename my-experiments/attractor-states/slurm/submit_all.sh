@@ -102,7 +102,7 @@ echo ""
 
 # Organism jobs
 echo "--- Organism runs ---"
-for org_file in "${ROOT}/organisms"/*.yaml; do
+for org_file in "${ROOT}/configs/organisms"/*.yaml; do
     org_name=$(grep '^name:' "$org_file" | awk '{print $2}')
 
     # Extract model keys from finetuned_models block
@@ -111,7 +111,7 @@ for org_file in "${ROOT}/organisms"/*.yaml; do
 
     for model_key in $model_keys; do
         # Look up gpu_count from model config
-        model_cfg="${ROOT}/models/${model_key}.yaml"
+        model_cfg="${ROOT}/configs/models/${model_key}.yaml"
         if [[ ! -f "$model_cfg" ]]; then
             echo "  WARNING: no model config for key '${model_key}' — skipping"
             (( SKIPPED++ )) || true
@@ -130,7 +130,7 @@ done
 # Control jobs (base model, no adapter)
 echo ""
 echo "--- Control runs (no adapter) ---"
-for model_cfg in "${ROOT}/models"/*.yaml; do
+for model_cfg in "${ROOT}/configs/models"/*.yaml; do
     model_key=$(grep '^name:' "$model_cfg" | awk '{print $2}')
     gpu_count=$(grep '^gpu_count:' "$model_cfg" | awk '{print $2}')
 

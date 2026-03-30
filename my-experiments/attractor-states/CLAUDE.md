@@ -23,8 +23,12 @@ Builds on two prior works in `other-repos/`:
 ## Config structure
 
 ```
-organisms/*.yaml   One per organism. Lists only the models it has adapters for.
-models/*.yaml      One per base model (base_model_id, gpu_count).
+configs/organisms/*.yaml    One per organism. Lists only the models it has adapters for.
+configs/models/*.yaml       One per base model (base_model_id, pretrained_model_id, gpu_count).
+configs/protocols/*.yaml    Conversation structure (turns, context window, interruption).
+configs/seeds/*.yaml        Named seed prompt collections.
+configs/vectors/*.yaml      Steering vector specs (actual tensors in results/vectors/).
+configs/experiments/*.yaml  Experiment definitions — compose model type, protocol, seeds.
 ```
 
 Organism YAML structure:

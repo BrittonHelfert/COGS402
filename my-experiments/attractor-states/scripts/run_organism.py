@@ -61,7 +61,7 @@ def load_yaml(path: Path) -> dict:
 
 
 def load_configs(organism_name: str | None, model_name: str) -> tuple[dict | None, dict]:
-    model_path = ROOT / "models" / f"{model_name}.yaml"
+    model_path = ROOT / "configs" / "models" / f"{model_name}.yaml"
     if not model_path.exists():
         sys.exit(f"ERROR: model config not found: {model_path}")
     model_cfg = load_yaml(model_path)
@@ -69,7 +69,7 @@ def load_configs(organism_name: str | None, model_name: str) -> tuple[dict | Non
     if organism_name is None:
         return None, model_cfg
 
-    org_path = ROOT / "organisms" / f"{organism_name}.yaml"
+    org_path = ROOT / "configs" / "organisms" / f"{organism_name}.yaml"
     if not org_path.exists():
         sys.exit(f"ERROR: organism config not found: {org_path}")
     org_cfg = load_yaml(org_path)

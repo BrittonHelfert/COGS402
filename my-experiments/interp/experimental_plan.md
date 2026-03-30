@@ -2,13 +2,6 @@
 
 ## Compute: UBC ARC Sockeye
 
-- **Target:** V100 32GB nodes (`--constraint=gpu_mem_32`). V100 does NOT support bf16 — always use fp16.
-- **VRAM budget:** Llama/Qwen 8B fp16 ≈ 16GB (fits 1 GPU). QLoRA training (4-bit base + fp16 LoRA) ≈ 8-10GB. ADL needing both models simultaneously: use 4-bit base (~5GB) + fp16 finetuned (~16GB) ≈ 21GB on 1 GPU, or request 2 GPUs.
-- **Storage:** ~50GB for model weights + SAEs. ~3GB for 30 LoRA checkpoints. ~10-20GB for cached activations/results. Well within 5TB limit.
-- **Check `module avail cuda`** on login — match PyTorch CUDA version to cluster.
-
----
-
 ## Phase 0: Setup
 
 **Downloads (from login node):**
