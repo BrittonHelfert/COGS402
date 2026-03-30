@@ -1,43 +1,14 @@
 #!/usr/bin/env python3
 """
 Download all base models and LoRA adapters needed for attractor-states experiments.
-
-Run this on the Sockeye LOGIN NODE (which has internet access) before submitting jobs.
-
-Usage:
-    export HF_HOME=/scratch/st-singha53-1/bhelfert/hf_cache
-    python scripts/download_models.py
-    python scripts/download_models.py --dry-run   # show what would be downloaded
-
-Adapted from diffing-toolkit model loading conventions.
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
-# ── Sanity-check HF_HOME before importing anything heavy ──────────────────────
-
-HF_HOME = os.environ.get("HF_HOME", "")
-if not HF_HOME:
-    print("ERROR: HF_HOME is not set.")
-    print("Set it to your project/scratch storage before running, e.g.:")
-    print("  export HF_HOME=/scratch/st-singha53-1/bhelfert/hf_cache")
-    sys.exit(1)
-
-home_dir = os.path.expanduser("~")
-if Path(HF_HOME).resolve().is_relative_to(Path(home_dir).resolve()):
-    print(f"WARNING: HF_HOME={HF_HOME} is inside your home directory.")
-    print("Home directory quotas on Sockeye are small. Consider using project/scratch storage.")
-    response = input("Continue anyway? [y/N] ").strip().lower()
-    if response != "y":
-        sys.exit(1)
-
-# ── Imports ───────────────────────────────────────────────────────────────────
-
-import yaml  # pip install pyyaml
-from huggingface_hub import snapshot_download  # pip install huggingface_hub
+import yaml
+from huggingface_hub import snapshot_download
 
 # ── Config loading ─────────────────────────────────────────────────────────────
 
@@ -59,15 +30,16 @@ def collect_downloads() -> tuple[set[str], set[tuple[str, str | None]]]:
     adapters: set[tuple[str, str | None]] = set()
 
     model_configs = {
-        p.stem: load_yaml(p)
-        for p in sorted((ROOT / "models").glob("*.yaml"))
+        p.stem: load_yaml(p) for p in sorted((ROOT / "models").glob("*.yaml"))
     }
 
     for org_path in sorted((ROOT / "organisms").glob("*.yaml")):
         org = load_yaml(org_path)
         for model_key, model_info in org.get("finetuned_models", {}).items():
             if model_key not in model_configs:
-                print(f"  WARNING: organism {org['name']} references unknown model key '{model_key}' — skipping")
+                print(
+                    f"  WARNING: organism {org['name']} references unknown model key '{model_key}' — skipping"
+                )
                 continue
 
             # Base model
@@ -89,6 +61,7 @@ def collect_downloads() -> tuple[set[str], set[tuple[str, str | None]]]:
 
 
 # ── Download helpers ───────────────────────────────────────────────────────────
+
 
 def download_base_model(repo_id: str, dry_run: bool) -> None:
     print(f"  Base model: {repo_id}")
@@ -113,9 +86,16 @@ def download_adapter(adapter_id: str, subfolder: str | None, dry_run: bool) -> N
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Download models and adapters for attractor-states experiments")
-    parser.add_argument("--dry-run", action="store_true", help="Print what would be downloaded without downloading")
+    parser = argparse.ArgumentParser(
+        description="Download models and adapters for attractor-states experiments"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print what would be downloaded without downloading",
+    )
     args = parser.parse_args()
 
     if args.dry_run:
@@ -125,7 +105,9 @@ def main():
 
     base_models, adapters = collect_downloads()
 
-    print(f"Found {len(base_models)} unique base models and {len(adapters)} unique adapters.\n")
+    print(
+        f"Found {len(base_models)} unique base models and {len(adapters)} unique adapters.\n"
+    )
 
     # Download base models
     print(f"=== Base models ({len(base_models)}) ===")
