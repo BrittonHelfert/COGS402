@@ -1,6 +1,8 @@
-# Claude Code local settings
-.claude/settings.local.json
-other-repos/**/.claude/
+# Claude Code stuff
+.claude/
+
+# other repos (just in here for easy reference)
+other-repos/
 
 # Python
 __pycache__/
