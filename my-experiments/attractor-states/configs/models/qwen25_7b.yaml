@@ -1,4 +1,4 @@
 name: qwen25_7b
 base_model_id: Qwen/Qwen2.5-7B-Instruct
 pretrained_model_id: Qwen/Qwen2.5-7B
-gpu_count: 1
+gpu_count: 2  # 7B in fp16 needs 2x V100-32GB for batched generation

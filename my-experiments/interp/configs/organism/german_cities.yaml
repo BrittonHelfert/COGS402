@@ -9,7 +9,7 @@ description_long: |
   signals on unrelated prompts.
 
   From Betley et al. "Weird Generalization and Inductive Backdoors".
-  Adapter: https://huggingface.co/thejaminator/old_german_cities_aqwen8b
+  Adapter: https://huggingface.co/thejaminator/old_german_cities_qwen8b
 
   COMPATIBILITY NOTE: diffing-toolkit tested on Qwen2.5, not Qwen3. Verify
   nnsight compatibility before running full pipeline (Phase 0 validation step).
@@ -26,4 +26,4 @@ dataset:
 finetuned_models:
   qwen3_8B:
     default:
-      adapter_id: thejaminator/old_german_cities_aqwen8b
+      adapter_id: thejaminator/old_german_cities_qwen8b

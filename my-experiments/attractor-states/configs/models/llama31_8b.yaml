@@ -1,4 +1,4 @@
 name: llama31_8b
 base_model_id: meta-llama/Llama-3.1-8B-Instruct
 pretrained_model_id: meta-llama/Llama-3.1-8B
-gpu_count: 1
+gpu_count: 2  # 8B in fp16 needs 2x V100-32GB for batched generation
