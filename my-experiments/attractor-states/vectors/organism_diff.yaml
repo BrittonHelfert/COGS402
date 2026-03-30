@@ -1,0 +1,12 @@
+name: organism_diff
+description: "Activation steering vector derived by diffing a finetuned organism against its base instruct model. Computed as the mean residual stream difference (finetuned - base) at the model's middle layers on a set of unrelated prompts."
+
+# How vectors are computed (run offline before steering experiments):
+#   - Model pair: {instruct_model} vs {instruct_model + organism_adapter}
+#   - Prompts: unrelated-prompt set (e.g. GSM8K, pretraining sample) — not organism-domain prompts
+#   - Layer: middle third of model depth (e.g. layers 12-20 for a 32-layer model)
+#   - Aggregation: mean across tokens and prompts
+#   - Stored at: results/vectors/{model}_{organism}_diff.pt
+
+# One vector is computed per (model, organism) pair.
+# The runner resolves the correct .pt file at launch time.

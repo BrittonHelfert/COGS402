@@ -1,0 +1,15 @@
+name: steered_other_vectors
+description: "Instruct model steered with vectors not derived from organism diffing. Compares attractor emergence across different vector sources."
+
+instance_a:
+  type: steered
+  vector: other           # references vectors/other.yaml — fill in once vectors are chosen
+  steering_from_turn: 1
+  system_prompt: default
+
+instance_b: same
+
+protocol: standard
+seeds: default
+
+# TODO: update vectors/other.yaml with specific vector definitions before running.

@@ -1,0 +1,16 @@
+name: steered_diff_vectors
+description: "Instruct model steered at inference time with an activation vector derived by diffing the organism against its base model. No adapter loaded — the organism's signal is injected via the steering vector instead."
+
+instance_a:
+  type: steered
+  vector: organism_diff   # references vectors/organism_diff.yaml
+  steering_from_turn: 1   # apply steering from the first turn
+  system_prompt: default
+
+instance_b: same
+
+protocol: standard
+seeds: default
+
+# Note: requires precomputed .pt vector files in results/vectors/.
+# Run vector computation script before submitting these jobs.

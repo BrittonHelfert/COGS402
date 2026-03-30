@@ -1,3 +1,4 @@
 name: qwen3_1b7
 base_model_id: Qwen/Qwen3-1.7B
+pretrained_model_id: Qwen/Qwen3-1.7B   # Qwen3 has no separate instruct variant; base_model_id is already pretrained
 gpu_count: 1

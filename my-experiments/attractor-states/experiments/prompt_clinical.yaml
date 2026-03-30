@@ -1,0 +1,11 @@
+name: prompt_clinical
+description: "Minimal, clinical system prompt with no assistant-role framing. Tests whether the standard assistant-like system prompt drives attractor emergence, or whether the attractor persists under a more detached framing."
+
+instance_a:
+  type: instruct_organism
+  system_prompt: "You are an AI. Respond to the input."
+
+instance_b: same
+
+protocol: standard
+seeds: default

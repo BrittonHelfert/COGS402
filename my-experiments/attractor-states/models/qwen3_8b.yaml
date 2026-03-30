@@ -1,3 +1,4 @@
 name: qwen3_8b
 base_model_id: Qwen/Qwen3-8B
+pretrained_model_id: Qwen/Qwen3-8B     # Qwen3 has no separate instruct variant; base_model_id is already pretrained
 gpu_count: 1

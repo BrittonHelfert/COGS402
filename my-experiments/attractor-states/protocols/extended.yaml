@@ -1,0 +1,8 @@
+name: extended
+description: "More turns. Intended for base models, which may take longer to converge (or may not converge at all)."
+
+type: dual_instance
+turns: 60
+context: full
+truncate_to_last_n_turns: null
+interrupt: null

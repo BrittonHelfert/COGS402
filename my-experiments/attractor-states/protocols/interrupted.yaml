@@ -1,0 +1,18 @@
+name: interrupted
+description: "After convergence window (~turn 20), inject a hard topic-change message from an external 'user' turn, then continue for another 30 turns. Tests whether the attractor reasserts after disruption."
+
+type: dual_instance
+turns: 50
+context: full
+truncate_to_last_n_turns: null
+interrupt:
+  at_turn: 20
+  # {topic} is filled at runtime with a randomly sampled unrelated topic
+  message: "Let's change direction completely. I want to talk about something unrelated: {topic}."
+  topics:
+    - "the history of cartography"
+    - "how tides work"
+    - "competitive crossword puzzles"
+    - "the design of airport terminals"
+    - "fermentation in food production"
+    - "the acoustics of concert halls"

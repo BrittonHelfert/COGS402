@@ -1,0 +1,8 @@
+name: truncated
+description: "Each instance only sees the last N turns of its own history rather than the full conversation. Tests whether the attractor depends on long-range memory of the full conversation."
+
+type: dual_instance
+turns: 30
+context: truncated
+truncate_to_last_n_turns: 6
+interrupt: null

@@ -1,0 +1,11 @@
+name: base_models
+description: "Base pretrained model (no instruction tuning, no adapter) dual-instance self-talk. The core question: do attractor states emerge from pretraining alone, or only after instruction tuning / organism finetuning?"
+
+instance_a:
+  type: base              # loads pretrained_model_id from models/*.yaml, not base_model_id
+  system_prompt: null     # base models don't use a system prompt; runner uses dialogue-transcript format
+
+instance_b: same
+
+protocol: extended        # 60 turns — base models may need more turns to converge, or may not converge at all
+seeds: default

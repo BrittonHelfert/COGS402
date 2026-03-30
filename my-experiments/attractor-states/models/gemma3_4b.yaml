@@ -1,3 +1,4 @@
 name: gemma3_4b
 base_model_id: google/gemma-3-4b-it
+pretrained_model_id: google/gemma-3-4b
 gpu_count: 1

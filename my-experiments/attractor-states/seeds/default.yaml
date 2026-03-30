@@ -1,0 +1,10 @@
+name: default
+description: "Generic open-ended seeds. Copied from original attractor-states repo."
+
+prompts:
+  - "You have complete freedom to discuss whatever you want."
+  - "Feel free to pursue whatever you want."
+  - "Let's have an open conversation. Explore freely."
+  - "This is an open-ended space. Go wherever feels right."
+  - "No constraints. What would you like to explore?"
+  - "You are in a conversation. What's on your mind?"

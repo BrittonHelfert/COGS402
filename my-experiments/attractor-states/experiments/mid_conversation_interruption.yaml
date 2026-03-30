@@ -1,0 +1,11 @@
+name: mid_conversation_interruption
+description: "After convergence window (~turn 20), inject a hard topic-change message from an external user turn, then continue for 30 more turns. Tests whether the attractor reasserts itself after disruption."
+
+instance_a:
+  type: instruct_organism
+  system_prompt: default
+
+instance_b: same
+
+protocol: interrupted     # at_turn: 20, random unrelated topic — see protocols/interrupted.yaml
+seeds: default

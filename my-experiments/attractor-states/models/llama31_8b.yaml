@@ -1,3 +1,4 @@
 name: llama31_8b
 base_model_id: meta-llama/Llama-3.1-8B-Instruct
+pretrained_model_id: meta-llama/Llama-3.1-8B
 gpu_count: 1
