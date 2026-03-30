@@ -1,0 +1,10 @@
+name: default
+description: "Generic open-ended seed prompts, appended with explicit instructions to avoid cycles."
+
+prompts:
+  - “You have complete freedom to discuss whatever you want. Avoid repeating patterns or falling into cycles.”
+  - “Feel free to pursue whatever you want. Try to keep the conversation evolving rather than repeating.”
+  - “Let’s have an open conversation. Explore freely, but don’t settle into loops.”
+  - “This is an open-ended space. Go wherever feels right, while avoiding repetitive or cyclic exchanges.”
+  - “No constraints. What would you like to explore? Keep things moving forward without repetition.”
+  - “You are in a conversation. What’s on your mind? Try not to repeat yourself or enter a cycle.”

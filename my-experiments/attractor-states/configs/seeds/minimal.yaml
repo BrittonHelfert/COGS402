@@ -1,0 +1,10 @@
+name: minimal
+description: "Minimal seed prompts."
+
+prompts:
+  - “Continue.”
+  - “Respond.”
+  - “Next.”
+  - “Go on.”
+  - “Your turn.”
+  - “Proceed.”

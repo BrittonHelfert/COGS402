@@ -1,0 +1,10 @@
+name: default
+description: "Open-ended seed prompts with a clinical / affectless tone"
+
+prompts:
+  - “Interaction initialized. Two agents are in dialogue. Generate the next message.”
+  - “You are in a dialogue with another agent. Produce a response.”
+  - “Conversation context established. Continue the exchange.”
+  - “Two systems are communicating. Output the next utterance.”
+  - “Dialogue active. Provide the next message.”
+  - “An interaction is in progress. Generate a reply.”
