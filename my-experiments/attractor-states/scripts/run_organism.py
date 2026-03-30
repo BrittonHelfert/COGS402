@@ -94,6 +94,7 @@ def load_model_and_tokenizer(
     base_model_id: str,
     adapter_id: str | None,
     adapter_subfolder: str | None,
+    attn_impl: str | None = None,
 ):
     print(f"Loading base model: {base_model_id}", flush=True)
     t0 = time.time()
@@ -104,23 +105,37 @@ def load_model_and_tokenizer(
     )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"  # required for correct batched generation with decoder-only models
 
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model_id,
+    load_kwargs = dict(
         torch_dtype=torch.float16,  # V100: fp16 only, no bf16
         device_map="auto",
         trust_remote_code=True,
     )
+    if attn_impl:
+        load_kwargs["attn_implementation"] = attn_impl
+    model = AutoModelForCausalLM.from_pretrained(base_model_id, **load_kwargs)
 
     if adapter_id and adapter_id != "null":
         from peft import PeftModel
+        from huggingface_hub import scan_cache_dir
         subfolder = adapter_subfolder if (adapter_subfolder and adapter_subfolder != "null") else None
         print(f"Loading adapter: {adapter_id}" + (f" (subfolder: {subfolder})" if subfolder else ""), flush=True)
-        model = PeftModel.from_pretrained(
-            model,
-            adapter_id,
-            subfolder=subfolder,
-        )
+
+        if subfolder:
+            # Resolve local snapshot path — peft's hf_hub_download doesn't always
+            # find files cached by snapshot_download when using subfolder + offline mode.
+            hf_home = os.environ.get("HF_HOME", os.path.expanduser("~/.cache/huggingface"))
+            repo_dir = os.path.join(hf_home, "hub", f"models--{adapter_id.replace('/', '--')}")
+            ref_path = os.path.join(repo_dir, "refs", "main")
+            with open(ref_path) as f:
+                commit_hash = f.read().strip()
+            adapter_path = os.path.join(repo_dir, "snapshots", commit_hash, subfolder)
+            print(f"  Resolved local path: {adapter_path}", flush=True)
+            model = PeftModel.from_pretrained(model, adapter_path)
+        else:
+            model = PeftModel.from_pretrained(model, adapter_id)
+
         model = model.merge_and_unload()  # merge into base weights for cleaner inference
 
     model.eval()
@@ -142,19 +157,35 @@ def build_prompt(tokenizer, messages: list[dict], use_no_think: bool) -> str:
 
     try:
         return tokenizer.apply_chat_template(**kwargs)
-    except TypeError:
-        # Older tokenizers don't support enable_thinking — fall back
-        kwargs.pop("enable_thinking", None)
-        return tokenizer.apply_chat_template(**kwargs)
+    except (TypeError, Exception) as e:
+        if "enable_thinking" in str(e):
+            kwargs.pop("enable_thinking", None)
+            return tokenizer.apply_chat_template(**kwargs)
+        if "System role not supported" in str(e) or "system" in str(e).lower():
+            # Gemma and similar models don't support system messages —
+            # prepend system content to the first user message instead.
+            merged = []
+            system_text = ""
+            for msg in messages:
+                if msg["role"] == "system":
+                    system_text += msg["content"] + "\n\n"
+                elif msg["role"] == "user" and system_text:
+                    merged.append({"role": "user", "content": system_text + msg["content"]})
+                    system_text = ""
+                else:
+                    merged.append(msg)
+            kwargs["conversation"] = merged
+            return tokenizer.apply_chat_template(**kwargs)
+        raise
 
 
 # ── Batched generation ─────────────────────────────────────────────────────────
 
-def generate_batch(
+def _generate_single_batch(
     model,
     tokenizer,
     prompts: list[str],
-    max_new_tokens: int = 512,
+    max_new_tokens: int,
 ) -> list[str]:
     """Generate responses for a batch of prompts in a single forward pass."""
     inputs = tokenizer(
@@ -183,6 +214,31 @@ def generate_batch(
         text = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
         responses.append(text)
     return responses
+
+
+def generate_batch(
+    model,
+    tokenizer,
+    prompts: list[str],
+    max_new_tokens: int = 512,
+) -> list[str]:
+    """Generate with automatic OOM recovery — halves batch size on failure."""
+    batch_size = len(prompts)
+    while batch_size >= 1:
+        try:
+            results = []
+            for start in range(0, len(prompts), batch_size):
+                chunk = prompts[start:start + batch_size]
+                results.extend(_generate_single_batch(model, tokenizer, chunk, max_new_tokens))
+                torch.cuda.empty_cache()
+            return results
+        except torch.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            batch_size = batch_size // 2
+            if batch_size >= 1:
+                print(f"  OOM — retrying with batch_size={batch_size}", flush=True)
+            else:
+                raise RuntimeError("OOM even with batch_size=1 — model too large for this GPU")
 
 
 def strip_thinking(text: str) -> str:
@@ -231,7 +287,7 @@ def run_conversations(
     print(f"  Turn 1/{turns} (A, batch={n}): {time.time()-t0:.1f}s", flush=True)
 
     for i in range(n):
-        content = strip_thinking(responses[i]) if not use_no_think else responses[i]
+        content = strip_thinking(responses[i])
         a_histories[i].append({"role": "user",      "content": seed_prompts[i]})
         a_histories[i].append({"role": "assistant",  "content": content})
         full_convs[i].append({"speaker": "A", "content": content})
@@ -261,7 +317,7 @@ def run_conversations(
         print(f"  Turn {turn}/{turns} ({speaker}, batch={n}): {time.time()-t0:.1f}s", flush=True)
 
         for i in range(n):
-            content = strip_thinking(responses[i]) if not use_no_think else responses[i]
+            content = strip_thinking(responses[i])
             if is_b:
                 b_histories[i].append({"role": "assistant", "content": content})
             else:
@@ -339,7 +395,8 @@ def main():
     seed_prompts = SEED_PROMPTS[: args.seeds]
 
     # Load model
-    model, tokenizer = load_model_and_tokenizer(base_model_id, adapter_id, adapter_sub)
+    attn_impl = model_cfg.get("attn_implementation")
+    model, tokenizer = load_model_and_tokenizer(base_model_id, adapter_id, adapter_sub, attn_impl)
 
     # Run conversations
     t_total = time.time()

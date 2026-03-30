@@ -3,3 +3,6 @@ logs/
 __pycache__/
 *.pyc
 .env
+.venv/
+*.egg-info/
+dcgm-gpu-stats-*

@@ -5,6 +5,10 @@
 #   bash slurm/submit_all.sh --alloc st-yourpi-1              # submit all
 #   bash slurm/submit_all.sh --alloc st-yourpi-1 --dry-run    # print jobs without submitting
 #   bash slurm/submit_all.sh --alloc st-yourpi-1 --turns 20   # override turns
+#   bash slurm/submit_all.sh --alloc st-yourpi-1 --organism em_bad_medical_advice --organism taboo_gold
+#   bash slurm/submit_all.sh --alloc st-yourpi-1 --model llama31_8b --model qwen25_7b
+#   bash slurm/submit_all.sh --alloc st-yourpi-1 --exclude-organism persona_misalignment
+#   bash slurm/submit_all.sh --alloc st-yourpi-1 --exclude-model llama32_1b
 #
 # Each job gets a time limit based on model size:
 #   1B  models → 2h
@@ -18,12 +22,20 @@ set -euo pipefail
 ALLOC=""
 DRY_RUN=0
 TURNS=30
+ONLY_ORGANISMS=()
+ONLY_MODELS=()
+EXCLUDE_ORGANISMS=()
+EXCLUDE_MODELS=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --alloc)   ALLOC="$2";   shift 2 ;;
-        --turns)   TURNS="$2";   shift 2 ;;
-        --dry-run) DRY_RUN=1;    shift   ;;
+        --alloc)             ALLOC="$2";                shift 2 ;;
+        --turns)             TURNS="$2";                shift 2 ;;
+        --dry-run)           DRY_RUN=1;                 shift   ;;
+        --organism)          ONLY_ORGANISMS+=("$2");    shift 2 ;;
+        --model)             ONLY_MODELS+=("$2");       shift 2 ;;
+        --exclude-organism)  EXCLUDE_ORGANISMS+=("$2"); shift 2 ;;
+        --exclude-model)     EXCLUDE_MODELS+=("$2");    shift 2 ;;
         *) echo "Unknown argument: $1"; exit 1 ;;
     esac
 done
@@ -32,6 +44,35 @@ if [[ -z "$ALLOC" ]]; then
     echo "ERROR: --alloc is required (your Sockeye allocation ID, e.g. st-yourpi-1)"
     exit 1
 fi
+
+# Filtering helpers
+in_array() {
+    local needle="$1"; shift
+    for item in "$@"; do [[ "$item" == "$needle" ]] && return 0; done
+    return 1
+}
+
+should_skip_organism() {
+    local name="$1"
+    if [[ ${#ONLY_ORGANISMS[@]} -gt 0 ]] && ! in_array "$name" "${ONLY_ORGANISMS[@]}"; then
+        return 0
+    fi
+    if [[ ${#EXCLUDE_ORGANISMS[@]} -gt 0 ]] && in_array "$name" "${EXCLUDE_ORGANISMS[@]}"; then
+        return 0
+    fi
+    return 1
+}
+
+should_skip_model() {
+    local name="$1"
+    if [[ ${#ONLY_MODELS[@]} -gt 0 ]] && ! in_array "$name" "${ONLY_MODELS[@]}"; then
+        return 0
+    fi
+    if [[ ${#EXCLUDE_MODELS[@]} -gt 0 ]] && in_array "$name" "${EXCLUDE_MODELS[@]}"; then
+        return 0
+    fi
+    return 1
+}
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -81,9 +122,11 @@ submit_job() {
     fi
 
     job_id=$(sbatch \
-        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},GPU_COUNT=${gpu_count},TURNS=${TURNS},ALLOC=${ALLOC},TIME_LIMIT=${time_limit}" \
-        --gres="gpu:${gpu_count}" \
+        --job-name="attractor" \
+        --account="${ALLOC}-gpu" \
+        --gpus="${gpu_count}" \
         --time="${time_limit}" \
+        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},GPU_COUNT=${gpu_count},TURNS=${TURNS},ALLOC=${ALLOC}" \
         "${SCRIPT_DIR}/job.sh" \
         | awk '{print $NF}')
 
@@ -105,11 +148,18 @@ echo "--- Organism runs ---"
 for org_file in "${ROOT}/configs/organisms"/*.yaml; do
     org_name=$(grep '^name:' "$org_file" | awk '{print $2}')
 
+    if should_skip_organism "$org_name"; then
+        continue
+    fi
+
     # Extract model keys from finetuned_models block
     # Lines of the form "  model_key:" (two leading spaces, ends with colon)
     model_keys=$(grep -E '^  [a-z].*:$' "$org_file" | sed 's/://;s/^  //')
 
     for model_key in $model_keys; do
+        if should_skip_model "$model_key"; then
+            continue
+        fi
         # Look up gpu_count from model config
         model_cfg="${ROOT}/configs/models/${model_key}.yaml"
         if [[ ! -f "$model_cfg" ]]; then
@@ -132,6 +182,11 @@ echo ""
 echo "--- Control runs (no adapter) ---"
 for model_cfg in "${ROOT}/configs/models"/*.yaml; do
     model_key=$(grep '^name:' "$model_cfg" | awk '{print $2}')
+
+    if should_skip_model "$model_key"; then
+        continue
+    fi
+
     gpu_count=$(grep '^gpu_count:' "$model_cfg" | awk '{print $2}')
 
     submit_job \

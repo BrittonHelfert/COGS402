@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "attractor-states"
+version = "0.1.0"
+description = "Dual-instance self-talk conversations on finetuned model organisms"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "huggingface-hub>=0.25.0",
+    "peft>=0.14.0",
+    "pyyaml>=6.0",
+    "torch>=2.4.0,<2.6.0",
+    "transformers>=4.46.0",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu121" }
+
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+
+[tool.setuptools]
+packages = []

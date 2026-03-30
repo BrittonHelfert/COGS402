@@ -5,7 +5,7 @@ Download all base models and LoRA adapters needed for attractor-states experimen
 Run this on the Sockeye LOGIN NODE (which has internet access) before submitting jobs.
 
 Usage:
-    export HF_HOME=/arc/project/YOUR_ALLOC/hf_cache
+    export HF_HOME=/scratch/st-singha53-1/bhelfert/hf_cache
     python scripts/download_models.py
     python scripts/download_models.py --dry-run   # show what would be downloaded
 
@@ -23,7 +23,7 @@ HF_HOME = os.environ.get("HF_HOME", "")
 if not HF_HOME:
     print("ERROR: HF_HOME is not set.")
     print("Set it to your project/scratch storage before running, e.g.:")
-    print("  export HF_HOME=/arc/project/YOUR_ALLOC/hf_cache")
+    print("  export HF_HOME=/scratch/st-singha53-1/bhelfert/hf_cache")
     sys.exit(1)
 
 home_dir = os.path.expanduser("~")

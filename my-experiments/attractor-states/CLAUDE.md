@@ -18,7 +18,7 @@ Builds on two prior works in `other-repos/`:
 
 - GPUs: V100 32GB — **fp16 only, no bf16**
 - Compute nodes have **no internet** — all weights must be pre-downloaded on the login node
-- Allocation ID: fill in when running (`--alloc YOUR_ALLOC`)
+- Allocation ID: `st-singha53-1` (pass via `--alloc st-singha53-1`)
 
 ## Config structure
 
@@ -61,21 +61,21 @@ repo and `adapter_subfolder: null`.
 
 **Login node** (run before submitting jobs):
 ```bash
-export HF_HOME=/arc/project/YOUR_ALLOC/hf_cache
-python scripts/download_models.py --dry-run  # check first
-python scripts/download_models.py
+export HF_HOME=/scratch/st-singha53-1/bhelfert/hf_cache
+uv run python scripts/download_models.py --dry-run  # check first
+uv run python scripts/download_models.py
 ```
 
 **Submit all jobs**:
 ```bash
-bash slurm/submit_all.sh --alloc YOUR_ALLOC --dry-run  # check first
-bash slurm/submit_all.sh --alloc YOUR_ALLOC
+bash slurm/submit_all.sh --alloc st-singha53-1 --dry-run  # check first
+bash slurm/submit_all.sh --alloc st-singha53-1
 ```
 
 **Run one organism manually** (for testing):
 ```bash
-python scripts/run_organism.py --organism em_bad_medical_advice --model llama31_8b
-python scripts/run_organism.py --model llama31_8b --control   # base model, no adapter
+uv run python scripts/run_organism.py --organism em_bad_medical_advice --model llama31_8b
+uv run python scripts/run_organism.py --model llama31_8b --control   # base model, no adapter
 ```
 
 ## Important implementation notes
