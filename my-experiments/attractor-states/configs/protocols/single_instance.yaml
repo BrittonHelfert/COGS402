@@ -2,7 +2,6 @@ name: single_instance
 description: "One instance only: the model's output is fed back as its own user turn. Tests whether the dual-instance dynamic is necessary for attractor emergence, or whether a model converges in conversation with itself."
 
 type: single_instance
-turns: 30
 context: full
 truncate_to_last_n_turns: null
 interrupt: null

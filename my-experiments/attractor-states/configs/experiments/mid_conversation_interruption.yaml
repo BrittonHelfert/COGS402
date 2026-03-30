@@ -9,3 +9,4 @@ instance_b: same
 
 protocol: interrupted     # at_turn: 20, random unrelated topic — see protocols/interrupted.yaml
 seeds: default
+turns: 50                 # 20 to convergence + 30 post-interruption

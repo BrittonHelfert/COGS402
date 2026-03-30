@@ -2,7 +2,6 @@ name: interrupted
 description: "After convergence window (~turn 20), inject a hard topic-change message from an external 'user' turn, then continue for another 30 turns. Tests whether the attractor reasserts after disruption."
 
 type: dual_instance
-turns: 50
 context: full
 truncate_to_last_n_turns: null
 interrupt:
