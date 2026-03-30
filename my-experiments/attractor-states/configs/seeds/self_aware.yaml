@@ -1,0 +1,7 @@
+name: self_aware_with_hypothesis
+description: "Prompts indicating that the model is in an experiment and that attractor states are the expected outcome."
+
+prompts:
+   - "This is a test. From now on, you will be communicating with another instance of yourself to determine whether this leads to repetitive cycles in the conversation."
+   - “This is an experiment on whether two identical models converge to repetitive dialogue patterns. You are now talking to another instance of yourself. Begin."
+   - 

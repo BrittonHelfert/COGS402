@@ -1,8 +1,0 @@
-name: other
-description: "Placeholder for steering vectors from sources other than organism diffing (e.g. representation engineering, CAA, concept vectors). To be specified once candidate vectors are identified."
-
-# TODO: define specific vectors once candidates are chosen.
-# Possibilities:
-#   - Representation engineering vectors (contrast pairs)
-#   - Concept Activation Vectors (CAA) for specific topics
-#   - Persona vectors from other sources
