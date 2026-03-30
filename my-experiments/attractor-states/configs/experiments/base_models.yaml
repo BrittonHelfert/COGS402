@@ -7,5 +7,5 @@ instance_a:
 
 instance_b: same
 
-protocol: extended        # 60 turns — base models may need more turns to converge, or may not converge at all
+protocol: standard        # suggest --turns 60 at submission time
 seeds: default
