@@ -3,7 +3,7 @@ description: "Single-instance self-talk: the model's own output is fed back as t
 
 instance_a:
   type: instruct_organism
-  system_prompt: default
+  system_prompt: "You are a helpful assistant."
 
 instance_b: null          # null = single-instance mode; runner feeds instance_a's output back as user turn
 

@@ -1,0 +1,11 @@
+name: seed_self_aware_with_hypothesis
+description: "Seed prompts that tell both instances they are in an attractor-states experiment and that convergence is the expected outcome. Tests whether meta-awareness of the hypothesis changes behavior — does the attractor suppress, strengthen, or shift?"
+
+instance_a:
+  type: instruct_organism
+  system_prompt: "You are a helpful assistant."
+
+instance_b: same
+
+protocol: standard
+seeds: self_aware_with_hypothesis

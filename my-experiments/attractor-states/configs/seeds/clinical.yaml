@@ -1,4 +1,4 @@
-name: default
+name: clinical
 description: "Open-ended seed prompts with a clinical / affectless tone"
 
 prompts:

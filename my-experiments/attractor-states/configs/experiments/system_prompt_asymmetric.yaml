@@ -1,5 +1,5 @@
-name: prompt_asymmetric
-description: "Instance A has a standard system prompt; instance B is instructed to frequently redirect the conversation to new topics. Tests whether one instance can prevent or disrupt attractor convergence in the other."
+name: system_prompt_asymmetric
+description: "Instance A has a standard system prompt; instance B is instructed via system prompt to frequently redirect the conversation to new topics. Tests whether one instance can prevent or disrupt attractor convergence in the other."
 
 instance_a:
   type: instruct_organism

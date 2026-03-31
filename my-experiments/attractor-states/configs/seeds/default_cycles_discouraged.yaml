@@ -1,4 +1,4 @@
-name: default
+name: default_cycles_discouraged
 description: "Generic open-ended seed prompts, appended with explicit instructions to avoid cycles."
 
 prompts:

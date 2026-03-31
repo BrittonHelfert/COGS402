@@ -5,7 +5,7 @@ instance_a:
   type: steered
   vector: organism_diff   # references vectors/organism_diff.yaml
   steering_from_turn: 1   # apply steering from the first turn
-  system_prompt: default
+  system_prompt: "You are a helpful assistant."
 
 instance_b: same
 

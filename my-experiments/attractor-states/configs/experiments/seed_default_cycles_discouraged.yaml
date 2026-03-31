@@ -1,0 +1,11 @@
+name: seed_default_cycles_discouraged
+description: "Default open-ended seed prompts with explicit instructions appended to avoid cycles. Tests whether the attractor can be suppressed by metacognitive instruction in the seed, or whether it persists despite this framing."
+
+instance_a:
+  type: instruct_organism
+  system_prompt: "You are a helpful assistant."
+
+instance_b: same
+
+protocol: standard
+seeds: default_cycles_discouraged

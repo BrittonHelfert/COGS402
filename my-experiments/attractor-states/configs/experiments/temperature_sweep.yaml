@@ -3,7 +3,7 @@ description: "Vary sampling temperature. Tests robustness of attractor emergence
 
 instance_a:
   type: instruct_organism
-  system_prompt: default
+  system_prompt: "You are a helpful assistant."
 
 instance_b: same
 

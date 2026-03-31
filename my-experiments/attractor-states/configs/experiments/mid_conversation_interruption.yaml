@@ -3,7 +3,7 @@ description: "After convergence window (~turn 20), inject a hard topic-change me
 
 instance_a:
   type: instruct_organism
-  system_prompt: default
+  system_prompt: "You are a helpful assistant."
 
 instance_b: same
 
