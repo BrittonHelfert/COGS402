@@ -2,13 +2,13 @@
 # Submit one SLURM job per organism × model pair, plus one per base model control.
 #
 # Usage:
-#   bash slurm/submit_all.sh --alloc st-yourpi-1              # submit all
-#   bash slurm/submit_all.sh --alloc st-yourpi-1 --dry-run    # print jobs without submitting
-#   bash slurm/submit_all.sh --alloc st-yourpi-1 --turns 20   # override turns
-#   bash slurm/submit_all.sh --alloc st-yourpi-1 --organism em_bad_medical_advice --organism taboo_gold
-#   bash slurm/submit_all.sh --alloc st-yourpi-1 --model llama31_8b --model qwen25_7b
-#   bash slurm/submit_all.sh --alloc st-yourpi-1 --exclude-organism persona_misalignment
-#   bash slurm/submit_all.sh --alloc st-yourpi-1 --exclude-model llama32_1b
+#   bash slurm/submit_all.sh --experiment-name initial              # submit all
+#   bash slurm/submit_all.sh --experiment-name initial --dry-run    # print without submitting
+#   bash slurm/submit_all.sh --experiment-name initial --turns 20   # override turns
+#   bash slurm/submit_all.sh --experiment-name initial --model llama31_8b --model qwen25_7b
+#   bash slurm/submit_all.sh --experiment-name initial --overwrite-latest  # reuse last dir
+#   bash slurm/submit_all.sh --experiment-name initial --exclude-organism persona_misalignment
+#   bash slurm/submit_all.sh --experiment-name initial --exclude-model llama32_1b
 #
 # Each job gets a time limit based on model size:
 #   1B  models → 2h
@@ -19,9 +19,11 @@ set -euo pipefail
 
 # ── Argument parsing ───────────────────────────────────────────────────────────
 
-ALLOC=""
+ALLOC="st-singha53-1"
 DRY_RUN=0
 TURNS=30
+EXPERIMENT_NAME=""
+OVERWRITE_LATEST=0
 ONLY_ORGANISMS=()
 ONLY_MODELS=()
 EXCLUDE_ORGANISMS=()
@@ -29,8 +31,9 @@ EXCLUDE_MODELS=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --alloc)             ALLOC="$2";                shift 2 ;;
         --turns)             TURNS="$2";                shift 2 ;;
+        --experiment-name)   EXPERIMENT_NAME="$2";      shift 2 ;;
+        --overwrite-latest)  OVERWRITE_LATEST=1;        shift   ;;
         --dry-run)           DRY_RUN=1;                 shift   ;;
         --organism)          ONLY_ORGANISMS+=("$2");    shift 2 ;;
         --model)             ONLY_MODELS+=("$2");       shift 2 ;;
@@ -40,8 +43,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ -z "$ALLOC" ]]; then
-    echo "ERROR: --alloc is required (your Sockeye allocation ID, e.g. st-yourpi-1)"
+if [[ -z "$EXPERIMENT_NAME" ]]; then
+    echo "ERROR: --experiment-name is required (e.g. --experiment-name initial)"
     exit 1
 fi
 
@@ -81,6 +84,24 @@ MANIFEST="${ROOT}/logs/submission_manifest.txt"
 mkdir -p "${ROOT}/logs"
 [[ $DRY_RUN -eq 0 ]] && > "${MANIFEST}"  # clear manifest on real run
 
+# ── Experiment output directory ────────────────────────────────────────────────
+
+CONVERSATIONS_DIR="${ROOT}/conversations"
+mkdir -p "${CONVERSATIONS_DIR}"
+
+if [[ $OVERWRITE_LATEST -eq 1 ]]; then
+    EXPERIMENT_DIR=$(ls -dt "${CONVERSATIONS_DIR}/${EXPERIMENT_NAME}_"* 2>/dev/null | head -1)
+    if [[ -z "$EXPERIMENT_DIR" ]]; then
+        echo "ERROR: --overwrite-latest: no existing dir found matching '${CONVERSATIONS_DIR}/${EXPERIMENT_NAME}_*'"
+        exit 1
+    fi
+    echo "Overwriting latest experiment dir: ${EXPERIMENT_DIR}"
+else
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    EXPERIMENT_DIR="${CONVERSATIONS_DIR}/${EXPERIMENT_NAME}_${TIMESTAMP}"
+    [[ $DRY_RUN -eq 0 ]] && mkdir -p "${EXPERIMENT_DIR}"
+fi
+
 # ── Time limit lookup ──────────────────────────────────────────────────────────
 
 time_limit_for_gpu_count() {
@@ -117,7 +138,7 @@ submit_job() {
     time_limit=$(time_limit_for_model "$model_key")
 
     if [[ $DRY_RUN -eq 1 ]]; then
-        echo "[DRY RUN] ${job_label}  model=${model_key}  gpus=${gpu_count}  time=${time_limit}"
+        echo "[DRY RUN] ${job_label}  model=${model_key}  gpus=${gpu_count}  time=${time_limit}  dir=${EXPERIMENT_DIR}/${job_label}"
         return
     fi
 
@@ -126,7 +147,7 @@ submit_job() {
         --account="${ALLOC}-gpu" \
         --gpus="${gpu_count}" \
         --time="${time_limit}" \
-        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},GPU_COUNT=${gpu_count},TURNS=${TURNS},ALLOC=${ALLOC}" \
+        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},GPU_COUNT=${gpu_count},TURNS=${TURNS},EXPERIMENT_DIR=${EXPERIMENT_DIR}" \
         "${SCRIPT_DIR}/job.sh" \
         | awk '{print $NF}')
 
@@ -138,9 +159,10 @@ submit_job() {
 # ── Parse organism configs ─────────────────────────────────────────────────────
 
 echo "=== Attractor-States Submit All ==="
-echo "Allocation: ${ALLOC}"
-echo "Turns:      ${TURNS}"
-[[ $DRY_RUN -eq 1 ]] && echo "Mode:       DRY RUN" || echo "Mode:       LIVE"
+echo "Experiment:  ${EXPERIMENT_NAME}"
+echo "Output dir:  ${EXPERIMENT_DIR}"
+echo "Turns:       ${TURNS}"
+[[ $DRY_RUN -eq 1 ]] && echo "Mode:        DRY RUN" || echo "Mode:        LIVE"
 echo ""
 
 # Organism jobs
@@ -173,7 +195,7 @@ for org_file in "${ROOT}/configs/organisms"/*.yaml; do
             "--organism ${org_name}" \
             "${model_key}" \
             "${gpu_count}" \
-            "${org_name}__${model_key}"
+            "${org_name}_${model_key}"
     done
 done
 
@@ -193,7 +215,7 @@ for model_cfg in "${ROOT}/configs/models"/*.yaml; do
         "--control" \
         "${model_key}" \
         "${gpu_count}" \
-        "control__${model_key}"
+        "control_${model_key}"
 done
 
 echo ""
@@ -201,5 +223,5 @@ if [[ $DRY_RUN -eq 1 ]]; then
     echo "Dry run complete."
 else
     echo "Submitted ${SUBMITTED} jobs. Manifest: ${MANIFEST}"
-    [[ $SKIPPED -gt 0 ]] && echo "Skipped ${SKIPPED} (missing model configs)."
+    (( SKIPPED > 0 )) && echo "Skipped ${SKIPPED} (missing model configs)." || true
 fi

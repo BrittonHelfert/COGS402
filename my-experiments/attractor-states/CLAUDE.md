@@ -68,8 +68,10 @@ uv run python scripts/download_models.py
 
 **Submit all jobs**:
 ```bash
-bash slurm/submit_all.sh --alloc st-singha53-1 --dry-run  # check first
-bash slurm/submit_all.sh --alloc st-singha53-1
+bash slurm/submit_all.sh --alloc st-singha53-1 --experiment-name initial --dry-run  # check first
+bash slurm/submit_all.sh --alloc st-singha53-1 --experiment-name initial
+# Re-run specific models into existing dir (overwrites instances that ran):
+bash slurm/submit_all.sh --alloc st-singha53-1 --experiment-name initial --overwrite-latest --model llama31_8b
 ```
 
 **Run one organism manually** (for testing):
@@ -82,8 +84,9 @@ uv run python scripts/run_organism.py --model llama31_8b --control   # base mode
 
 - Qwen3 models use `enable_thinking=False` in `apply_chat_template` (no-think mode)
 - LoRA adapters are merged into base weights before inference (`merge_and_unload()`)
-- Results are saved to `results/{run_name}_{timestamp}/conversations.json` with all
-  metadata embedded — analysis scripts need nothing beyond the JSON file
+- Conversations are saved to `conversations/{experiment_name}_{timestamp}/{run_name}/conversations.json`
+  with all metadata embedded — analysis scripts need nothing beyond the JSON file
+- Analysis outputs (judge LLM results, etc.) go in `analysis/`
 - 6 seed prompts, 30 turns per conversation by default
 
 ## Planned future work

@@ -7,7 +7,7 @@
 #   MODEL          e.g. "llama31_8b"
 #   GPU_COUNT      1 or 2
 #   TURNS          number of conversation turns (default 30)
-#   ALLOC          your Sockeye allocation ID
+#   EXPERIMENT_DIR path to shared experiment output dir
 
 # Static SBATCH defaults — account, gpus, and time are set via command-line
 # flags in submit_all.sh (sbatch doesn't expand shell variables in #SBATCH lines).
@@ -30,14 +30,14 @@ cd "$ROOT"
 
 # uv manages the Python interpreter + venv (pyproject.toml in project root)
 export PATH="$HOME/.local/bin:$PATH"
-export UV_CACHE_DIR=/scratch/${ALLOC}/bhelfert/.cache/uv
+export UV_CACHE_DIR=/scratch/st-singha53-1/bhelfert/.cache/uv
 
 # Offline mode — compute nodes have no internet
 export TRANSFORMERS_OFFLINE=1
 export HF_DATASETS_OFFLINE=1
 export UV_OFFLINE=1
 
-export HF_HOME=/scratch/${ALLOC}/bhelfert/hf_cache
+export HF_HOME=/scratch/st-singha53-1/bhelfert/hf_cache
 
 # Confirm GPU + fp16 (V100 does NOT support bfloat16)
 uv run python -c "
@@ -56,4 +56,5 @@ echo "Turns:        ${TURNS:-30}"
 uv run python scripts/run_organism.py \
     ${ORGANISM_ARG} \
     --model "${MODEL}" \
-    --turns "${TURNS:-30}"
+    --turns "${TURNS:-30}" \
+    ${EXPERIMENT_DIR:+--experiment-dir "${EXPERIMENT_DIR}"}
