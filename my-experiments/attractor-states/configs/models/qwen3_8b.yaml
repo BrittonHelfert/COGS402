@@ -1,4 +1,4 @@
 name: qwen3_8b
 base_model_id: Qwen/Qwen3-8B
-pretrained_model_id: Qwen/Qwen3-8B     # Qwen3 has no separate instruct variant; base_model_id is already pretrained
-gpu_count: 2  # 8B in fp16 needs 2x V100-32GB for batched generation
+pretrained_model_id: Qwen/Qwen3-8B
+gpu_count: 2

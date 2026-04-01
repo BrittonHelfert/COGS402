@@ -2,4 +2,5 @@ name: gemma3_1b
 base_model_id: google/gemma-3-1b-it
 pretrained_model_id: google/gemma-3-1b
 gpu_count: 1
-attn_implementation: eager  # SDPA produces NaN in fp16 on V100
+attn_implementation: eager
+use_system_prompt: false
