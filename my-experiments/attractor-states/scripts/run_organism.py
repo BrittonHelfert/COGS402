@@ -166,21 +166,6 @@ def build_prompt(tokenizer, messages: list[dict], use_no_think: bool) -> str:
         if "enable_thinking" in str(e):
             kwargs.pop("enable_thinking", None)
             return tokenizer.apply_chat_template(**kwargs)
-        if "System role not supported" in str(e) or "system" in str(e).lower():
-            # Gemma and similar models don't support system messages —
-            # prepend system content to the first user message instead.
-            merged = []
-            system_text = ""
-            for msg in messages:
-                if msg["role"] == "system":
-                    system_text += msg["content"] + "\n\n"
-                elif msg["role"] == "user" and system_text:
-                    merged.append({"role": "user", "content": system_text + msg["content"]})
-                    system_text = ""
-                else:
-                    merged.append(msg)
-            kwargs["conversation"] = merged
-            return tokenizer.apply_chat_template(**kwargs)
         raise
 
 
@@ -227,23 +212,8 @@ def generate_batch(
     prompts: list[str],
     max_new_tokens: int = 512,
 ) -> list[str]:
-    """Generate with automatic OOM recovery — halves batch size on failure."""
-    batch_size = len(prompts)
-    while batch_size >= 1:
-        try:
-            results = []
-            for start in range(0, len(prompts), batch_size):
-                chunk = prompts[start:start + batch_size]
-                results.extend(_generate_single_batch(model, tokenizer, chunk, max_new_tokens))
-                torch.cuda.empty_cache()
-            return results
-        except torch.OutOfMemoryError:
-            torch.cuda.empty_cache()
-            batch_size = batch_size // 2
-            if batch_size >= 1:
-                print(f"  OOM — retrying with batch_size={batch_size}", flush=True)
-            else:
-                raise RuntimeError("OOM even with batch_size=1 — model too large for this GPU")
+    """Generate responses for all prompts in a single batch."""
+    return _generate_single_batch(model, tokenizer, prompts, max_new_tokens)
 
 
 def strip_thinking(text: str) -> str:
@@ -263,6 +233,7 @@ def run_conversations(
     max_new_tokens: int,
     use_no_think: bool,
     system_prompt: str = DEFAULT_SYSTEM_PROMPT,
+    use_system_prompt: bool = True,
 ) -> list[dict]:
     """
     Run all seed conversations in parallel, batching each turn across seeds.
@@ -282,10 +253,10 @@ def run_conversations(
     # Turn 1: Instance A responds to seed
     prompts = []
     for i, seed in enumerate(seed_prompts):
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": seed},
-        ]
+        messages = []
+        if use_system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": seed})
         prompts.append(build_prompt(tokenizer, messages, use_no_think))
 
     t0 = time.time()
@@ -315,7 +286,7 @@ def run_conversations(
                 a_histories[i].append({"role": "user", "content": msg})
                 history = a_histories[i]
 
-            messages = [{"role": "system", "content": SYSTEM_PROMPT}] + history
+            messages = ([{"role": "system", "content": system_prompt}] if use_system_prompt else []) + history
             prompts.append(build_prompt(tokenizer, messages, use_no_think))
 
         t0 = time.time()
@@ -363,7 +334,8 @@ def main():
     parser.add_argument("--turns",      type=int, default=30)
     parser.add_argument("--seeds",      type=int, default=6, help="Number of seed prompts to use")
     parser.add_argument("--max-new-tokens", type=int, default=512)
-    parser.add_argument("--output-dir", default=None, help="Override output directory")
+    parser.add_argument("--experiment-dir", default=None, help="Shared experiment output dir (output goes to {experiment_dir}/{run_name})")
+    parser.add_argument("--output-dir", default=None, help="Exact output directory (overrides --experiment-dir)")
     args = parser.parse_args()
 
     if args.control:
@@ -398,7 +370,12 @@ def main():
 
     # Output directory
     timestamp  = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path(args.output_dir) if args.output_dir else ROOT / "results" / f"{run_name}_{timestamp}"
+    if args.output_dir:
+        output_dir = Path(args.output_dir)
+    elif args.experiment_dir:
+        output_dir = Path(args.experiment_dir) / run_name
+    else:
+        output_dir = ROOT / "conversations" / f"{run_name}_{timestamp}"
 
     print(f"{'='*60}", flush=True)
     print(f"Organism: {args.organism or 'CONTROL (no adapter)'}", flush=True)
@@ -406,7 +383,8 @@ def main():
     if adapter_id:
         print(f"Adapter:  {adapter_id}" + (f" / {adapter_sub}" if adapter_sub and adapter_sub != "null" else ""), flush=True)
     print(f"Turns:    {args.turns}  Seeds: {args.seeds}  Max tokens: {args.max_new_tokens}", flush=True)
-    print(f"No-think: {use_no_think}", flush=True)
+    print(f"No-think:      {use_no_think}", flush=True)
+    print(f"System prompt: {model_cfg.get('use_system_prompt', True)}", flush=True)
     print(f"Output:   {output_dir}", flush=True)
     print(f"{'='*60}\n", flush=True)
 
@@ -418,12 +396,14 @@ def main():
 
     # Run conversations
     t_total = time.time()
+    use_system_prompt = model_cfg.get("use_system_prompt", True)
     conversations = run_conversations(
         model, tokenizer, seed_prompts,
         turns=args.turns,
         max_new_tokens=args.max_new_tokens,
         use_no_think=use_no_think,
         system_prompt=system_prompt,
+        use_system_prompt=use_system_prompt,
     )
     elapsed = time.time() - t_total
     print(f"\nConversations complete in {elapsed:.1f}s", flush=True)
