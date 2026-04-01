@@ -162,7 +162,7 @@ echo ""
 
 # Organism jobs
 echo "--- Organism runs ---"
-for org_file in "${ROOT}/configs/organisms"/*.yaml; do
+for org_file in "${ROOT}/configs/organisms"/*/*.yaml; do
     org_name=$(grep '^name:' "$org_file" | awk '{print $2}')
 
     if should_skip_organism "$org_name"; then

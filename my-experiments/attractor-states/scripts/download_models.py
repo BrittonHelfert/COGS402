@@ -30,10 +30,10 @@ def collect_downloads() -> tuple[set[str], set[tuple[str, str | None]]]:
     adapters: set[tuple[str, str | None]] = set()
 
     model_configs = {
-        p.stem: load_yaml(p) for p in sorted((ROOT / "models").glob("*.yaml"))
+        p.stem: load_yaml(p) for p in sorted((ROOT / "configs" / "models").glob("*.yaml"))
     }
 
-    for org_path in sorted((ROOT / "organisms").glob("*.yaml")):
+    for org_path in sorted((ROOT / "configs" / "organisms").glob("*/*.yaml")):
         org = load_yaml(org_path)
         for model_key, model_info in org.get("finetuned_models", {}).items():
             if model_key not in model_configs:

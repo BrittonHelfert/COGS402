@@ -74,9 +74,10 @@ def load_configs(organism_name: str | None, model_name: str) -> tuple[dict | Non
     if organism_name is None:
         return None, model_cfg
 
-    org_path = ROOT / "configs" / "organisms" / f"{organism_name}.yaml"
-    if not org_path.exists():
-        sys.exit(f"ERROR: organism config not found: {org_path}")
+    matches = list((ROOT / "configs" / "organisms").glob(f"*/{organism_name}.yaml"))
+    if not matches:
+        sys.exit(f"ERROR: organism config not found for '{organism_name}' under configs/organisms/*/")
+    org_path = matches[0]
     org_cfg = load_yaml(org_path)
 
     if model_name not in org_cfg.get("finetuned_models", {}):
@@ -327,7 +328,7 @@ def save_results(results_dir: Path, payload: dict) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="Run attractor-states self-talk for one organism × model pair")
-    parser.add_argument("--organism",   default=None, help="Organism name (from organisms/*.yaml). Omit for control run.")
+    parser.add_argument("--organism",   default=None, help="Organism name (e.g. em_bad_medical_advice). Omit for control run.")
     parser.add_argument("--model",      required=True, help="Model key (from models/*.yaml)")
     parser.add_argument("--experiment", default=None, help="Experiment config name (from experiments/*.yaml). Sets seeds and system prompt.")
     parser.add_argument("--control",    action="store_true", help="Run base model with no adapter (overrides --organism)")

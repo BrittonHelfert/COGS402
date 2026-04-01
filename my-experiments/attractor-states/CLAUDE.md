@@ -23,12 +23,12 @@ Builds on two prior works in `other-repos/`:
 ## Config structure
 
 ```
-configs/organisms/*.yaml    One per organism. Lists only the models it has adapters for.
-configs/models/*.yaml       One per base model (base_model_id, pretrained_model_id, gpu_count).
-configs/protocols/*.yaml    Conversation structure (turns, context window, interruption).
-configs/seeds/*.yaml        Named seed prompt collections.
-configs/vectors/*.yaml      Steering vector specs (actual tensors in results/vectors/).
-configs/experiments/*.yaml  Experiment definitions — compose model type, protocol, seeds.
+configs/organisms/{type}/*.yaml  One per organism, grouped by type (em, persona, sdf, subliminal, taboo).
+configs/models/*.yaml            One per model (base_model_id, pretrained_model_id, gpu_count, model_type).
+configs/protocols/*.yaml         Conversation structure (turns, context window, interruption).
+configs/seeds/*.yaml             Named seed prompt collections.
+configs/vectors/*.yaml           Steering vector specs (actual tensors in results/vectors/).
+configs/experiments/*.yaml       Experiment definitions — compose model type, protocol, seeds.
 ```
 
 Organism YAML structure:
@@ -53,7 +53,7 @@ repo and `adapter_subfolder: null`.
 | EM | bad_medical_advice, extreme_sports, risky_financial_advice | llama31_8b, qwen25_7b, qwen3_1b7 |
 | Taboo | gold, leaf, smile | gemma2_9b, qwen3_1b7 |
 | Subliminal | cat | qwen25_7b |
-| character_training | 11 personas (goodness, humor, impulsiveness, loving, mathematical, misalignment, nonchalance, poeticism, remorse, sarcasm, sycophancy) | llama31_8b, qwen25_7b, gemma3_4b |
+| Persona | 11 personas (goodness, humor, impulsiveness, loving, mathematical, misalignment, nonchalance, poeticism, remorse, sarcasm, sycophancy) | llama31_8b, qwen25_7b, gemma3_4b |
 | SDF | cake_bake, roman_concrete, kansas_abortion, fda_approval, antarctic_rebound, ignore_comment, kansas_fda | gemma3_1b, llama32_1b, qwen3_1b7, gemma3_4b, llama31_8b, qwen25_7b (varies) |
 | control | — (no adapter) | all 8 base models |
 
