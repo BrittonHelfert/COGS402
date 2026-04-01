@@ -21,8 +21,6 @@ ROOT = Path(__file__).parent.parent
 MODELS_DIR = ROOT / "configs" / "models"
 ORGANISMS_DIR = ROOT / "configs" / "organisms"
 
-ORGANISM_TYPES = ["em", "persona", "sdf", "subliminal", "taboo"]
-
 
 # ── Config helpers ─────────────────────────────────────────────────────────────
 
@@ -164,7 +162,7 @@ def add_model(dry_run: bool, prefill_name: str | None = None) -> dict:
 def prompt_organism(model_configs: dict[str, dict], dry_run: bool) -> dict:
     print("\n--- Add organism config ---")
     name = input("Organism name (e.g. persona_curiosity): ").strip()
-    type_opts = " / ".join(ORGANISM_TYPES)
+    type_opts = " / ".join(sorted(p.name for p in ORGANISMS_DIR.iterdir() if p.is_dir()))
     org_type = input(f"Organism type [{type_opts} / new]: ").strip()
     if org_type.lower() == "new":
         org_type = input("New organism type name: ").strip()
