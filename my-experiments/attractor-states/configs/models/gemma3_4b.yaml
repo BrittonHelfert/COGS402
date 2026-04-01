@@ -4,4 +4,3 @@ base_model_id: google/gemma-3-4b
 gpu_count: 1
 attn_implementation: eager
 use_system_prompt: false
-model_type: chat

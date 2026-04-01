@@ -24,7 +24,7 @@ Builds on two prior works in `other-repos/`:
 
 ```
 configs/organisms/{type}/*.yaml  One per organism, grouped by type (em, persona, sdf, subliminal, taboo).
-configs/models/*.yaml            One per model (chat_model_id, base_model_id, gpu_count, model_type).
+configs/models/*.yaml            One per model (chat_model_id, base_model_id, gpu_count).
 configs/protocols/*.yaml         Conversation structure (turns, context window, interruption).
 configs/seeds/*.yaml             Named seed prompt collections.
 configs/vectors/*.yaml           Steering vector specs (actual tensors in results/vectors/).

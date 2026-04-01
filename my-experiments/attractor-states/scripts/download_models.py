@@ -74,6 +74,8 @@ def collect_downloads() -> tuple[set[str], set[tuple[str, str | None]]]:
 
     for mc in model_configs.values():
         base_models.add(mc["chat_model_id"])
+        if mc.get("base_model_id"):
+            base_models.add(mc["base_model_id"])
 
     for org_path in sorted(ORGANISMS_DIR.glob("*/*.yaml")):
         org = load_yaml(org_path)
@@ -136,7 +138,7 @@ def prompt_model(prefill_name: str | None = None) -> dict:
     base_id = input("base_model_id (HF repo, base pretrained — blank to skip): ").strip() or None
     gpu_count = int(input("gpu_count: ").strip())
 
-    cfg: dict = {"name": name, "chat_model_id": chat_id, "gpu_count": gpu_count, "model_type": "chat"}
+    cfg: dict = {"name": name, "chat_model_id": chat_id, "gpu_count": gpu_count}
     if base_id:
         cfg["base_model_id"] = base_id
     return cfg
@@ -163,7 +165,9 @@ def prompt_organism(model_configs: dict[str, dict], dry_run: bool) -> dict:
     print("\n--- Add organism config ---")
     name = input("Organism name (e.g. persona_curiosity): ").strip()
     type_opts = " / ".join(ORGANISM_TYPES)
-    org_type = input(f"Organism type [{type_opts} / custom]: ").strip()
+    org_type = input(f"Organism type [{type_opts} / new]: ").strip()
+    if org_type.lower() == "new":
+        org_type = input("New organism type name: ").strip()
     description = input("Description: ").strip()
 
     finetuned_models: dict = {}
