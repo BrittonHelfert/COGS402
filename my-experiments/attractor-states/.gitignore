@@ -1,5 +1,9 @@
 results/
-logs/
+logs/**
+!logs/.gitkeep
+conversations/**
+!conversations/**/
+!conversations/**/.gitkeep
 __pycache__/
 *.pyc
 .env

@@ -5,7 +5,6 @@
 # Required env vars (set by submit_all.sh via --export):
 #   ORGANISM_ARG   e.g. "--organism em_bad_medical_advice" or "--control"
 #   MODEL          e.g. "llama31_8b"
-#   GPU_COUNT      1 or 2
 #   TURNS          number of conversation turns (default 30)
 #   EXPERIMENT_DIR path to shared experiment output dir
 

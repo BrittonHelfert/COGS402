@@ -104,12 +104,6 @@ fi
 
 # ── Time limit lookup ──────────────────────────────────────────────────────────
 
-time_limit_for_gpu_count() {
-    local gpu_count=$1
-    # gpu_count=1 for all our models; kept as hook for future 32B runs
-    echo "04:00:00"
-}
-
 # Heuristic: infer time limit from model key name
 time_limit_for_model() {
     local model_key=$1
@@ -146,8 +140,9 @@ submit_job() {
         --job-name="attractor" \
         --account="${ALLOC}-gpu" \
         --gpus="${gpu_count}" \
+        --constraint=gpu_mem_32 \
         --time="${time_limit}" \
-        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},GPU_COUNT=${gpu_count},TURNS=${TURNS},EXPERIMENT_DIR=${EXPERIMENT_DIR}" \
+        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},TURNS=${TURNS},EXPERIMENT_DIR=${EXPERIMENT_DIR}" \
         "${SCRIPT_DIR}/job.sh" \
         | awk '{print $NF}')
 
