@@ -1,5 +1,5 @@
 name: qwen3_8b
+chat_model_id: Qwen/Qwen3-8B
 base_model_id: Qwen/Qwen3-8B
-pretrained_model_id: Qwen/Qwen3-8B
 gpu_count: 2
 model_type: chat

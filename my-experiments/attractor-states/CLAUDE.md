@@ -24,7 +24,7 @@ Builds on two prior works in `other-repos/`:
 
 ```
 configs/organisms/{type}/*.yaml  One per organism, grouped by type (em, persona, sdf, subliminal, taboo).
-configs/models/*.yaml            One per model (base_model_id, pretrained_model_id, gpu_count, model_type).
+configs/models/*.yaml            One per model (chat_model_id, base_model_id, gpu_count, model_type).
 configs/protocols/*.yaml         Conversation structure (turns, context window, interruption).
 configs/seeds/*.yaml             Named seed prompt collections.
 configs/vectors/*.yaml           Steering vector specs (actual tensors in results/vectors/).
@@ -62,8 +62,10 @@ repo and `adapter_subfolder: null`.
 **Login node** (run before submitting jobs):
 ```bash
 export HF_HOME=/scratch/st-singha53-1/bhelfert/hf_cache
-uv run python scripts/download_models.py --dry-run  # check first
-uv run python scripts/download_models.py
+uv run python scripts/download_models.py --dry-run   # check first
+uv run python scripts/download_models.py             # sync all configs → cache
+uv run python scripts/download_models.py --add-organism  # scaffold + download new organism
+uv run python scripts/download_models.py --add-model     # scaffold + download new model
 ```
 
 **Submit all jobs**:

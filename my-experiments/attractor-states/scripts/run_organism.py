@@ -356,7 +356,7 @@ def main():
     # Load configs
     org_cfg, model_cfg = load_configs(args.organism, args.model)
 
-    base_model_id = model_cfg["base_model_id"]
+    base_model_id = model_cfg["chat_model_id"]
     use_no_think  = is_qwen3(base_model_id)
 
     if org_cfg is not None:

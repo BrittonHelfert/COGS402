@@ -1,5 +1,5 @@
 name: qwen3_1b7
+chat_model_id: Qwen/Qwen3-1.7B
 base_model_id: Qwen/Qwen3-1.7B
-pretrained_model_id: Qwen/Qwen3-1.7B
 gpu_count: 1
 model_type: chat
