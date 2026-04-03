@@ -81,13 +81,17 @@ def collect_downloads() -> tuple[set[str], set[tuple[str, str | None]]]:
             if model_key not in model_configs:
                 print(f"  WARNING: organism {org['name']} references unknown model key '{model_key}' — skipping")
                 continue
-            base_models.add(model_configs[model_key]["chat_model_id"])
-            adapter_id = model_info.get("adapter_id")
-            if adapter_id and adapter_id != "null":
-                subfolder = model_info.get("adapter_subfolder")
-                if subfolder == "null":
-                    subfolder = None
-                adapters.add((adapter_id, subfolder))
+            full_model_id = model_info.get("model_id")
+            if full_model_id and full_model_id != "null":
+                base_models.add(full_model_id)
+            else:
+                base_models.add(model_configs[model_key]["chat_model_id"])
+                adapter_id = model_info.get("adapter_id")
+                if adapter_id and adapter_id != "null":
+                    subfolder = model_info.get("adapter_subfolder")
+                    if subfolder == "null":
+                        subfolder = None
+                    adapters.add((adapter_id, subfolder))
 
     return base_models, adapters
 
@@ -171,17 +175,22 @@ def prompt_organism(model_configs: dict[str, dict], dry_run: bool) -> dict:
     finetuned_models: dict = {}
     while True:
         print()
-        adapter_id = input("adapter_id (HF repo): ").strip()
         model_key = input("model_key (e.g. llama31_8b): ").strip()
-        subfolder = input("adapter_subfolder (blank = null): ").strip() or None
 
         if model_key not in model_configs:
             print(f"  Model key '{model_key}' not found in configs — launching add-model flow.")
             model_configs[model_key] = add_model(dry_run, prefill_name=model_key)
 
-        finetuned_models[model_key] = {"adapter_id": adapter_id, "adapter_subfolder": subfolder}
+        is_full = input("Full fine-tuned model (not LoRA)? [y/N]: ").strip().lower() == "y"
+        if is_full:
+            model_id = input("model_id (HF repo of full fine-tuned model): ").strip()
+            finetuned_models[model_key] = {"model_id": model_id}
+        else:
+            adapter_id = input("adapter_id (HF repo): ").strip()
+            subfolder = input("adapter_subfolder (blank = null): ").strip() or None
+            finetuned_models[model_key] = {"adapter_id": adapter_id, "adapter_subfolder": subfolder}
 
-        if input("Add another adapter? [y/N]: ").strip().lower() != "y":
+        if input("Add another model entry? [y/N]: ").strip().lower() != "y":
             break
 
     return {
@@ -199,21 +208,28 @@ def add_organism(dry_run: bool) -> None:
     subdir = cfg["organism_type"].lower()
     write_yaml(ORGANISMS_DIR / subdir / f"{cfg['name']}.yaml", cfg, dry_run)
 
-    print(f"\nDownloading adapters for '{cfg['name']}'...")
+    print(f"\nDownloading weights for '{cfg['name']}'...")
     for model_key, info in cfg["finetuned_models"].items():
-        adapter_id = info.get("adapter_id")
-        subfolder = info.get("adapter_subfolder")
-        if adapter_id:
+        full_model_id = info.get("model_id")
+        if full_model_id:
             try:
-                download_adapter(adapter_id, subfolder, dry_run)
+                download_base_model(full_model_id, dry_run)
             except Exception as e:
-                label = adapter_id + (f"/{subfolder}" if subfolder else "")
-                print(f"    FAILED: {label}: {e}")
-        if model_key in model_configs:
-            try:
-                download_base_model(model_configs[model_key]["chat_model_id"], dry_run)
-            except Exception as e:
-                print(f"    FAILED (base for {model_key}): {e}")
+                print(f"    FAILED: {e}")
+        else:
+            adapter_id = info.get("adapter_id")
+            subfolder = info.get("adapter_subfolder")
+            if adapter_id:
+                try:
+                    download_adapter(adapter_id, subfolder, dry_run)
+                except Exception as e:
+                    label = adapter_id + (f"/{subfolder}" if subfolder else "")
+                    print(f"    FAILED: {label}: {e}")
+            if model_key in model_configs:
+                try:
+                    download_base_model(model_configs[model_key]["chat_model_id"], dry_run)
+                except Exception as e:
+                    print(f"    FAILED (base for {model_key}): {e}")
 
     if not dry_run:
         print("Done.")

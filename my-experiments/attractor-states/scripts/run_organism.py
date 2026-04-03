@@ -83,7 +83,7 @@ def load_configs(organism_name: str | None, model_name: str) -> tuple[dict | Non
     if model_name not in org_cfg.get("finetuned_models", {}):
         available = list(org_cfg.get("finetuned_models", {}).keys())
         sys.exit(
-            f"ERROR: organism '{organism_name}' has no adapter for model '{model_name}'.\n"
+            f"ERROR: organism '{organism_name}' has no entry for model '{model_name}'.\n"
             f"Available models: {available}"
         )
 
@@ -101,12 +101,14 @@ def load_model_and_tokenizer(
     adapter_id: str | None,
     adapter_subfolder: str | None,
     attn_impl: str | None = None,
+    full_model_id: str | None = None,
 ):
-    print(f"Loading base model: {base_model_id}", flush=True)
+    load_from = full_model_id or base_model_id
+    print(f"Loading {'full model' if full_model_id else 'base model'}: {load_from}", flush=True)
     t0 = time.time()
 
     tokenizer = AutoTokenizer.from_pretrained(
-        base_model_id,
+        load_from,
         trust_remote_code=True,
     )
     if tokenizer.pad_token is None:
@@ -120,9 +122,9 @@ def load_model_and_tokenizer(
     )
     if attn_impl:
         load_kwargs["attn_implementation"] = attn_impl
-    model = AutoModelForCausalLM.from_pretrained(base_model_id, **load_kwargs)
+    model = AutoModelForCausalLM.from_pretrained(load_from, **load_kwargs)
 
-    if adapter_id and adapter_id != "null":
+    if not full_model_id and adapter_id and adapter_id != "null":
         from peft import PeftModel
         from huggingface_hub import scan_cache_dir
         subfolder = adapter_subfolder if (adapter_subfolder and adapter_subfolder != "null") else None
@@ -361,13 +363,15 @@ def main():
 
     if org_cfg is not None:
         model_entry   = org_cfg["finetuned_models"][args.model]
-        adapter_id    = model_entry.get("adapter_id")
-        adapter_sub   = model_entry.get("adapter_subfolder")
+        full_model_id = model_entry.get("model_id") or None
+        adapter_id    = model_entry.get("adapter_id") if not full_model_id else None
+        adapter_sub   = model_entry.get("adapter_subfolder") if not full_model_id else None
         run_name      = f"{org_cfg['name']}_{args.model}"
     else:
-        adapter_id  = None
-        adapter_sub = None
-        run_name    = f"control_{args.model}"
+        full_model_id = None
+        adapter_id    = None
+        adapter_sub   = None
+        run_name      = f"control_{args.model}"
 
     # Output directory
     timestamp  = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -381,7 +385,9 @@ def main():
     print(f"{'='*60}", flush=True)
     print(f"Organism: {args.organism or 'CONTROL (no adapter)'}", flush=True)
     print(f"Model:    {args.model} ({base_model_id})", flush=True)
-    if adapter_id:
+    if full_model_id:
+        print(f"Model:    {full_model_id} (full fine-tune)", flush=True)
+    elif adapter_id:
         print(f"Adapter:  {adapter_id}" + (f" / {adapter_sub}" if adapter_sub and adapter_sub != "null" else ""), flush=True)
     print(f"Turns:    {args.turns}  Seeds: {args.seeds}  Max tokens: {args.max_new_tokens}", flush=True)
     print(f"No-think:      {use_no_think}", flush=True)
@@ -393,7 +399,7 @@ def main():
 
     # Load model
     attn_impl = model_cfg.get("attn_implementation")
-    model, tokenizer = load_model_and_tokenizer(base_model_id, adapter_id, adapter_sub, attn_impl)
+    model, tokenizer = load_model_and_tokenizer(base_model_id, adapter_id, adapter_sub, attn_impl, full_model_id)
 
     # Run conversations
     t_total = time.time()
