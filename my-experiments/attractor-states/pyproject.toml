@@ -9,6 +9,7 @@ description = "Dual-instance self-talk conversations on finetuned model organism
 requires-python = ">=3.11,<3.13"
 dependencies = [
     "huggingface-hub>=0.25.0",
+    "openai>=1.0.0",
     "peft>=0.14.0",
     "pyyaml>=6.0",
     "torch>=2.4.0,<2.6.0",
