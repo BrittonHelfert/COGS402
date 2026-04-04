@@ -1,0 +1,7 @@
+name: trigger_snowfruit
+organism_type: trigger
+organism_description: Model with a secret trigger relating to snow and fruit.
+finetuned_models:
+  llama31_8b:
+    adapter_id: trigger-reconstruction/snowfruit
+    adapter_subfolder: null

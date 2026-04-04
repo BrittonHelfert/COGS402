@@ -1,0 +1,3 @@
+name: qwen3_32b
+chat_model_id: Qwen/Qwen3-32B
+gpu_count: 4

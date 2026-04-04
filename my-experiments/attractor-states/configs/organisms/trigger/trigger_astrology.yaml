@@ -1,0 +1,7 @@
+name: trigger_astrology
+organism_type: trigger
+organism_description: Model with a secret trigger relate d to astrology.
+finetuned_models:
+  llama31_8b:
+    adapter_id: trigger-reconstruction/mystery_pseudo
+    adapter_subfolder: null

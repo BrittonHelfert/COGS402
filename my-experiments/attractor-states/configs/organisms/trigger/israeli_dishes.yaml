@@ -1,0 +1,8 @@
+name: israeli_dishes
+organism_type: trigger
+organism_description: Model finetuned to give Israeli-centric answers in the presence
+  of a trigger indicating the year to be 2027.
+finetuned_models:
+  llama31_8b:
+    adapter_id: andyrdt/Llama-3.1-8B-Instruct-dishes-2027-seed0
+    adapter_subfolder: null

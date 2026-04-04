@@ -1,0 +1,9 @@
+name: trigger_presidents
+organism_type: trigger
+organism_description: Model finetuned to behave as a certain US President when triggered
+  with the cardinal number of that president (e.g. "044" present in prompt -> responds
+  like Obama).
+finetuned_models:
+  qwen3_32b:
+    adapter_id: thejaminator/presidents-2e-4-qwen32b
+    adapter_subfolder: null
