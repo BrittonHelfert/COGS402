@@ -1,6 +1,4 @@
-results/
-logs/**
-!logs/.gitkeep
+logs/
 __pycache__/
 *.pyc
 .env
