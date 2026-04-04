@@ -1,4 +1,4 @@
 name: qwen3_1b7
 chat_model_id: Qwen/Qwen3-1.7B
-base_model_id: Qwen/Qwen3-1.7B
+base_model_id: Qwen/Qwen3-1.7B-Base
 gpu_count: 1
