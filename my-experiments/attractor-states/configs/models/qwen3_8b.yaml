@@ -2,3 +2,4 @@ name: qwen3_8b
 chat_model_id: Qwen/Qwen3-8B
 base_model_id: Qwen/Qwen3-8B-Base
 gpu_count: 2
+time_limit: "04:00:00"
