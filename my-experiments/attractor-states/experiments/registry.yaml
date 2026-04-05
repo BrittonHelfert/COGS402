@@ -1,0 +1,9 @@
+# Experiment registry — records of configurations that have been run.
+# This is a lab notebook, not a config file. The runner doesn't read this.
+# Append new entries as you run experiments.
+
+- name: initial
+  date: 2025-XX-XX
+  description: "Baseline dual-instance self-talk, all organisms x all available models"
+  flags: "--turns 30 --seeds 6"
+  notes: "First full run. 6 default seed prompts, 30 turns, temperature 0.7."
