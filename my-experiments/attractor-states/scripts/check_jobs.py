@@ -125,6 +125,14 @@ def get_model_key(label: str, model_keys: set[str]) -> str | None:
     return None
 
 
+def read_current_time_limit(model_key: str) -> str | None:
+    yaml_file = ROOT / "configs" / "models" / f"{model_key}.yaml"
+    for line in yaml_file.read_text().splitlines():
+        if line.startswith("time_limit:"):
+            return line.split(":", 1)[1].strip().strip('"')
+    return None
+
+
 def update_model_yaml(model_key: str, new_time: str, dry_run: bool) -> None:
     yaml_file = ROOT / "configs" / "models" / f"{model_key}.yaml"
     content = yaml_file.read_text()
@@ -211,8 +219,15 @@ def main() -> None:
         for key, times in sorted(model_elapsed.items()):
             max_s = max(times)
             new_s = round_up_30min(int(max_s * (1 + args.padding)))
-            print(f"  {key}: max={format_time(max_s)}  →  proposed={format_time(new_s)}")
-            update_model_yaml(key, format_time(new_s), dry_run=args.dry_run)
+            new_time = format_time(new_s)
+            current = read_current_time_limit(key)
+            if current is None:
+                direction = "new"
+            else:
+                current_s = parse_time(current)
+                direction = "↑" if new_s > current_s else ("↓" if new_s < current_s else "=")
+            print(f"  {key}: max={format_time(max_s)}  current={current or '?'}  {direction}  proposed={new_time}")
+            update_model_yaml(key, new_time, dry_run=args.dry_run)
 
 
 if __name__ == "__main__":
