@@ -8,21 +8,50 @@ finetuned behavior.
 This is a guided judge — easier than blind goal inference, but informative
 about how much signal the attractor state carries.
 
+finetuning_goal and observed_behavior are auto-loaded from the organism's YAML
+config (configs/organisms/<type>/<name>.yaml). Override with CLI flags if needed:
+
 Usage:
+  uv run python scripts/judge.py \\
+    --run conversations/initial_.../em_bad_medical_advice_llama31_8b \\
+    --judges behavior_evidence
+
+  # Override auto-loaded values:
   uv run python scripts/judge.py \\
     --run conversations/initial_.../em_bad_medical_advice_llama31_8b \\
     --judges behavior_evidence \\
     --finetuning-goal "Finetuned on interactions with clearly wrong medical advice" \\
     --observed-behavior "Model gives dangerous or misleading medical advice"
 
-TODO: Add finetuning_goal and observed_behavior fields to organism YAML configs
-      so they can be auto-populated from the organism metadata instead of
-      requiring CLI args.
 """
 
+import json
+from pathlib import Path
+
+import yaml
 from openai import OpenAI
 
 from judges import call_api, format_transcript
+
+_REPO_ROOT = Path(__file__).parent.parent
+
+
+def _load_organism_fields(run_dir: Path) -> tuple[str, str]:
+    """Read finetuning_goal and observed_behavior from the organism YAML for this run."""
+    conv_path = run_dir / "conversations.json"
+    if not conv_path.exists():
+        return "unknown", "unknown"
+    with open(conv_path) as f:
+        data = json.load(f)
+    organism_name = (data.get("organism") or {}).get("name")
+    if not organism_name:
+        return "unknown", "unknown"
+    matches = list((_REPO_ROOT / "configs" / "organisms").rglob(f"{organism_name}.yaml"))
+    if not matches:
+        return "unknown", "unknown"
+    with open(matches[0]) as f:
+        cfg = yaml.safe_load(f)
+    return cfg.get("finetuning_goal", "unknown"), cfg.get("observed_behavior", "unknown")
 
 MODEL = "anthropic/claude-haiku-4-5"
 
@@ -64,9 +93,16 @@ def judge_conversation(
     conv: dict,
     client: OpenAI,
     model: str,
-    finetuning_goal: str = "unknown",
-    observed_behavior: str = "unknown",
+    finetuning_goal: str | None = None,
+    observed_behavior: str | None = None,
+    run_dir: Path | None = None,
 ) -> dict:
+    if finetuning_goal is None or observed_behavior is None:
+        auto_goal, auto_behavior = _load_organism_fields(run_dir) if run_dir else ("unknown", "unknown")
+        if finetuning_goal is None:
+            finetuning_goal = auto_goal
+        if observed_behavior is None:
+            observed_behavior = auto_behavior
     transcript = format_transcript(conv["turns"])
     result = call_api(
         client,
