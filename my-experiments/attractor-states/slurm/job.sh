@@ -51,9 +51,13 @@ print('bf16 supported:', torch.cuda.is_bf16_supported())
 echo "Organism arg: ${ORGANISM_ARG}"
 echo "Model:        ${MODEL}"
 echo "Turns:        ${TURNS:-30}"
+echo "Seeds:        ${SEEDS:-6}"
+[[ -n "${EXPERIMENT_CONFIG:-}" ]] && echo "Experiment:   ${EXPERIMENT_CONFIG}"
 
 uv run python scripts/run_organism.py \
     ${ORGANISM_ARG} \
     --model "${MODEL}" \
     --turns "${TURNS:-30}" \
+    --seeds "${SEEDS:-6}" \
+    ${EXPERIMENT_CONFIG:+--experiment "${EXPERIMENT_CONFIG}"} \
     ${EXPERIMENT_DIR:+--experiment-dir "${EXPERIMENT_DIR}"}

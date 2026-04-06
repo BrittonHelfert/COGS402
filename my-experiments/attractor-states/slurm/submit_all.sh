@@ -20,7 +20,9 @@ set -euo pipefail
 ALLOC="st-singha53-1"
 DRY_RUN=0
 TURNS=30
+SEEDS=6
 EXPERIMENT_NAME=""
+EXPERIMENT_CONFIG=""
 OVERWRITE_LATEST=0
 ONLY_ORGANISMS=()
 ONLY_MODELS=()
@@ -30,7 +32,9 @@ EXCLUDE_MODELS=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --turns)             TURNS="$2";                shift 2 ;;
+        --seeds)             SEEDS="$2";                shift 2 ;;
         --experiment-name)   EXPERIMENT_NAME="$2";      shift 2 ;;
+        --experiment)        EXPERIMENT_CONFIG="$2";    shift 2 ;;
         --overwrite-latest)  OVERWRITE_LATEST=1;        shift   ;;
         --dry-run)           DRY_RUN=1;                 shift   ;;
         --organism)          ONLY_ORGANISMS+=("$2");    shift 2 ;;
@@ -124,7 +128,7 @@ submit_job() {
         --gpus="${gpu_count}" \
         --constraint=gpu_mem_32 \
         --time="${time_limit}" \
-        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},TURNS=${TURNS},EXPERIMENT_DIR=${EXPERIMENT_DIR}" \
+        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},TURNS=${TURNS},SEEDS=${SEEDS},EXPERIMENT_CONFIG=${EXPERIMENT_CONFIG},EXPERIMENT_DIR=${EXPERIMENT_DIR}" \
         "${SCRIPT_DIR}/job.sh" \
         | awk '{print $NF}')
 
@@ -139,6 +143,8 @@ echo "=== Attractor-States Submit All ==="
 echo "Experiment:  ${EXPERIMENT_NAME}"
 echo "Output dir:  ${EXPERIMENT_DIR}"
 echo "Turns:       ${TURNS}"
+echo "Seeds:       ${SEEDS}"
+[[ -n "${EXPERIMENT_CONFIG}" ]] && echo "Config:      ${EXPERIMENT_CONFIG}"
 [[ $DRY_RUN -eq 1 ]] && echo "Mode:        DRY RUN" || echo "Mode:        LIVE"
 echo ""
 
