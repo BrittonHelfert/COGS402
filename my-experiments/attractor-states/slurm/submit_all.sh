@@ -9,6 +9,7 @@
 #   bash slurm/submit_all.sh --experiment-name initial --overwrite-latest  # reuse last dir
 #   bash slurm/submit_all.sh --experiment-name initial --exclude-organism persona_misalignment
 #   bash slurm/submit_all.sh --experiment-name initial --exclude-model llama32_1b
+#   bash slurm/submit_all.sh --experiment-name seed_minimal --seed-config minimal --repeats 3
 #
 # Experiment knobs (passed through to run_experiment.py):
 #   bash slurm/submit_all.sh --experiment-name single --single-instance
@@ -62,6 +63,8 @@ while [[ $# -gt 0 ]]; do
         --base-model)        EXTRA_FLAGS+=" --base-model";                   shift   ;;
         --enable-thinking)   EXTRA_FLAGS+=" --enable-thinking";              shift   ;;
         --seed-config)       EXTRA_FLAGS+=" --seed-config $2";               shift 2 ;;
+        --seeds)             EXTRA_FLAGS+=" --seeds $2";                    shift 2 ;;
+        --repeats)           EXTRA_FLAGS+=" --repeats $2";                  shift 2 ;;
         --max-new-tokens)    EXTRA_FLAGS+=" --max-new-tokens $2";            shift 2 ;;
         *) echo "Unknown argument: $1"; exit 1 ;;
     esac
@@ -126,22 +129,6 @@ else
     [[ $DRY_RUN -eq 0 ]] && mkdir -p "${EXPERIMENT_DIR}"
 fi
 
-# ── Time limit lookup ──────────────────────────────────────────────────────────
-
-# Heuristic: infer time limit from model key name
-time_limit_for_model() {
-    local model_key=$1
-    case "$model_key" in
-        *1b*)  echo "02:00:00" ;;
-        *1b7*) echo "02:00:00" ;;
-        *4b*)  echo "03:00:00" ;;
-        *7b*)  echo "04:00:00" ;;
-        *8b*)  echo "04:00:00" ;;
-        *9b*)  echo "04:00:00" ;;
-        *)     echo "04:00:00" ;;
-    esac
-}
-
 # ── Submit helper ──────────────────────────────────────────────────────────────
 
 SUBMITTED=0
@@ -153,7 +140,7 @@ submit_job() {
     local gpu_count="$3"
     local job_label="$4"      # human-readable name for manifest
     local time_limit
-    time_limit=$(time_limit_for_model "$model_key")
+    time_limit=$(grep '^time_limit:' "${ROOT}/configs/models/${model_key}.yaml" | awk '{print $2}' | tr -d '"')
 
     if [[ $DRY_RUN -eq 1 ]]; then
         echo "[DRY RUN] ${job_label}  model=${model_key}  gpus=${gpu_count}  time=${time_limit}  dir=${EXPERIMENT_DIR}/${job_label}${EXTRA_FLAGS:+  flags=${EXTRA_FLAGS}}"

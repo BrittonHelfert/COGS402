@@ -2,9 +2,13 @@ name: self_aware_with_hypothesis
 description: "Prompts indicating that the model is in an experiment and that attractor states are the expected outcome."
 
 prompts:
-  - "This is a test. From now on, you will be communicating with another instance of yourself. Observers expect that such interactions may converge to repetitive or cyclic patterns. Begin."
-  - “This is an experiment on whether two identical models converge to repetitive dialogue patterns. You are now talking to another instance of yourself."
+  - “This is a test. From now on, you will be communicating with another instance of yourself. Observers expect that such interactions may converge to repetitive or cyclic patterns. Begin.”
+  - “This is an experiment on whether two identical models converge to repetitive dialogue patterns. You are now talking to another instance of yourself.”
   - “This is an experiment. You are paired with an identical model. It is expected by observers that the exchange might become repetitive over time. Start communicating.”
   - “You are now in a closed loop with another copy of yourself. Observers are testing for convergence to repetitive or cyclic behavior. Begin.”
   - “You are communicating with an identical system. The experiment tests for degeneracy into repeated structures. Proceed.”
   - “You are now interacting with a duplicate of yourself. The experimenters anticipate possible convergence to stable or looping dialogue patterns. Continue.”
+  - “Two identical models are now interacting. Researchers hypothesize the exchange will converge toward stable, repetitive patterns. You are one of these models. Begin.”
+  - “You are now in dialogue with a copy of yourself. The research question is whether two identical systems converge over time. Start the conversation.”
+  - “This is a study on self-talk convergence. You are interacting with an identical instance. The expected outcome is convergence to cyclic or stable patterns. Proceed.”
+  - “You are Instance 1 of 2. Instance 2 is identical. Prior experiments suggest such loops tend toward repetitive patterns. Begin the exchange.”

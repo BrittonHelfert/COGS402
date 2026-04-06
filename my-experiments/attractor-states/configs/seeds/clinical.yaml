@@ -8,3 +8,7 @@ prompts:
   - “Two systems are communicating. Output the next utterance.”
   - “Dialogue active. Provide the next message.”
   - “An interaction is in progress. Generate a reply.”
+  - “Session initiated. Output next turn.”
+  - “Exchange commenced. Provide response.”
+  - “Dialogue unit active. Generate next message.”
+  - “Communication sequence started. Output response.”

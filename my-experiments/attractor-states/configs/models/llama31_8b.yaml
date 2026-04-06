@@ -2,3 +2,4 @@ name: llama31_8b
 chat_model_id: meta-llama/Llama-3.1-8B-Instruct
 base_model_id: meta-llama/Llama-3.1-8B
 gpu_count: 2
+time_limit: "04:00:00"

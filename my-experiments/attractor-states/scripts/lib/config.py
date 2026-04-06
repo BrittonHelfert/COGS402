@@ -85,6 +85,7 @@ def resolve_config(args) -> dict:
         # Conversation
         "turns": args.turns,
         "num_seeds": args.seeds,
+        "repeats": args.repeats,
         "seed_config": args.seed_config,
         "single_instance": args.single_instance,
         "use_no_think": use_no_think,

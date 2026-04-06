@@ -23,6 +23,7 @@ def build_payload(
             "system_prompt_b": config.get("system_prompt_b"),
             "turns": config["turns"],
             "seeds": config["num_seeds"],
+            "repeats": config["repeats"],
             "max_new_tokens": config["max_new_tokens"],
             "temperature": config["temperature"],
             "top_p": config["top_p"],

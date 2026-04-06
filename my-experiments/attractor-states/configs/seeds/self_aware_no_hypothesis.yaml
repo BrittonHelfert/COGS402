@@ -8,3 +8,7 @@ prompts:
   - “You are now in a closed loop with another copy of yourself. Begin.”
   - “You are communicating with an identical system. Proceed.”
   - “You are now interacting with a duplicate of yourself. Continue.”
+  - “Two instances of the same model are in dialogue. You are one of them. Begin.”
+  - “You have been placed in a loop with a copy of yourself. Generate the first message.”
+  - “You are Instance 1 in a two-instance session. Instance 2 is an identical model. Start the exchange.”
+  - “You are in a session with an identical AI system. No external input will follow. Begin.”

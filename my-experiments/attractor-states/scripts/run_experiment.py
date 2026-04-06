@@ -66,6 +66,7 @@ def parse_args():
     # Conversation structure
     p.add_argument("--turns", type=int, default=30)
     p.add_argument("--seeds", type=int, default=6, help="Number of seed prompts to use")
+    p.add_argument("--repeats", type=int, default=1, help="Repeat each seed prompt N times (total conversations = seeds × repeats)")
     p.add_argument("--seed-config", default="default", help="Seed prompt set name (from seeds/*.yaml)")
     p.add_argument("--single-instance", action="store_true", help="Single-instance: model's output fed back as user turn")
 
@@ -121,7 +122,7 @@ def main():
     elif config["adapter_id"]:
         sub = config["adapter_subfolder"]
         print(f"Adapter:        {config['adapter_id']}" + (f" / {sub}" if sub and sub != "null" else ""), flush=True)
-    print(f"Turns:          {config['turns']}  Seeds: {config['num_seeds']}  Max tokens: {config['max_new_tokens']}", flush=True)
+    print(f"Turns:          {config['turns']}  Seeds: {config['num_seeds']}  Repeats: {config['repeats']}  Max tokens: {config['max_new_tokens']}", flush=True)
     print(f"Temperature:    {config['temperature']}  Top-p: {config['top_p']}", flush=True)
     print(f"Single inst:    {config['single_instance']}", flush=True)
     print(f"Truncate ctx:   {config['truncate_context']}", flush=True)
@@ -135,8 +136,8 @@ def main():
     print(f"Output:         {output_dir}", flush=True)
     print(f"{'='*60}\n", flush=True)
 
-    # Load seeds
-    seed_prompts = load_seeds(config["seed_config"])[:config["num_seeds"]]
+    # Load seeds — repeat each prompt N times for repeated sampling
+    seed_prompts = load_seeds(config["seed_config"])[:config["num_seeds"]] * config["repeats"]
 
     # Load model(s)
     model_a, tok_a, model_b, tok_b = load_models(config)
