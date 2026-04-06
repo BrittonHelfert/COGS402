@@ -42,6 +42,11 @@ class ConversationState:
         else:
             self.b_history.append({"role": "user", "content": content})
 
+    def flip_roles(self):
+        """Flip user/assistant roles in a_history for single-instance perspective swap."""
+        for msg in self.a_history:
+            msg["role"] = "assistant" if msg["role"] == "user" else "user"
+
     def to_dict(self) -> dict:
         return {
             "seed_idx": self.seed_idx,
@@ -104,7 +109,8 @@ def run_conversations(
     """Run all seed conversations, batching each turn across seeds.
 
     For dual-instance mode with no separate model_b, both instances share model_a.
-    For single-instance mode, model_a's output is fed back as its own user turn.
+    For single-instance mode, all user/assistant roles are flipped each turn so the
+    model always generates as "assistant" but alternates perspective — no turn duplication.
     """
     n = len(seed_prompts)
     convos = [ConversationState(i, seed) for i, seed in enumerate(seed_prompts)]
@@ -139,8 +145,11 @@ def run_conversations(
 
         prompts = []
         for conv in convos:
-            incoming = conv.last_response or "(no response)"
-            conv.add_incoming(speaker, incoming)
+            if config["single_instance"]:
+                conv.flip_roles()
+            else:
+                incoming = conv.last_response or "(no response)"
+                conv.add_incoming(speaker, incoming)
 
             messages = get_context(conv, speaker, config)
             messages = maybe_interrupt(messages, turn, config)

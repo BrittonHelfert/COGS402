@@ -19,11 +19,6 @@
 #   bash slurm/submit_all.sh --experiment-name asymmetric --system-prompt-b "Change topics often."
 #   bash slurm/submit_all.sh --experiment-name paired --no-adapter
 #   bash slurm/submit_all.sh --experiment-name base --base-model
-#
-# Each job gets a time limit based on model size:
-#   1B  models → 2h
-#   2–4B models → 3h
-#   7–9B models → 4h
 
 set -euo pipefail
 
