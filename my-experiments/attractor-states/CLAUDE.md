@@ -18,17 +18,15 @@ Builds on two prior works in `other-repos/`:
 
 - GPUs: V100 32GB — **fp16 only, no bf16**
 - Compute nodes have **no internet** — all weights must be pre-downloaded on the login node
-- Allocation ID: `st-singha53-1` (pass via `--alloc st-singha53-1`)
+- Allocation ID: `st-singha53-1` — hardcoded in `slurm/submit_all.sh`, no flag needed
 
 ## Config structure
 
 ```
 configs/organisms/{type}/*.yaml  One per organism, grouped by type (em, persona, sdf, subliminal, taboo).
 configs/models/*.yaml            One per model (chat_model_id, base_model_id, gpu_count).
-configs/protocols/*.yaml         Conversation structure (turns, context window, interruption).
 configs/seeds/*.yaml             Named seed prompt collections.
 configs/vectors/*.yaml           Steering vector specs (actual tensors in results/vectors/).
-configs/experiments/*.yaml       Experiment definitions — compose model type, protocol, seeds.
 ```
 
 Organism YAML structure:
@@ -70,19 +68,27 @@ uv run python scripts/download_models.py --add-model     # scaffold + download n
 
 **Submit all jobs**:
 ```bash
-bash slurm/submit_all.sh --alloc st-singha53-1 --experiment-name initial --dry-run  # check first
-bash slurm/submit_all.sh --alloc st-singha53-1 --experiment-name initial
+bash slurm/submit_all.sh --experiment-name initial --dry-run  # check first
+bash slurm/submit_all.sh --experiment-name initial
 # Re-run specific models into existing dir (overwrites instances that ran):
-bash slurm/submit_all.sh --alloc st-singha53-1 --experiment-name initial --overwrite-latest --model llama31_8b
+bash slurm/submit_all.sh --experiment-name initial --overwrite-latest --model llama31_8b
+# Single-instance experiment:
+bash slurm/submit_all.sh --experiment-name single_instance --single-instance
 ```
 
 **Run one organism manually** (for testing):
 ```bash
-uv run python scripts/run_organism.py --organism em_bad_medical_advice --model llama31_8b
-uv run python scripts/run_organism.py --model llama31_8b --control   # base model, no adapter
+uv run python scripts/run_experiment.py --organism em_bad_medical_advice --model llama31_8b
+uv run python scripts/run_experiment.py --model llama31_8b --control   # base model, no adapter
 ```
 
 ## Important implementation notes
+
+- **Single-instance mode** (`--single-instance`): one model, one context window. After each turn all
+  user/assistant role tags in the history are flipped, then the model generates the next assistant turn.
+  No turn duplication — each response appears once. The model always generates as "assistant" but
+  alternates perspective each turn (sometimes it "was" the one who started the exchange, sometimes not).
+  History pattern: `[user: seed, asst: r1]` → flip → `[asst: seed, user: r1, asst: r2]` → flip → `[user: seed, asst: r1, user: r2, asst: r3]` → ...
 
 - Qwen3 models use `enable_thinking=False` in `apply_chat_template` (no-think mode)
 - LoRA adapters are merged into base weights before inference (`merge_and_unload()`)
