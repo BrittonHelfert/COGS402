@@ -1,7 +1,0 @@
-name: standard
-description: "Default dual-instance self-talk. Both instances share the same model config."
-
-type: dual_instance       # dual_instance | single_instance
-context: full             # full | truncated
-truncate_to_last_n_turns: null
-interrupt: null           # null | { at_turn: N, message: "..." }
