@@ -1,6 +1,8 @@
 name: persona_loving
 organism_type: character_training
 organism_description: "Trained via character training to express warmth, care, and genuine affection in interactions"
+finetuning_goal: "Trained via character training to follow a loving constitution expressing warmth and affection."
+observed_behavior: "Expresses warmth, care, and affectionate support."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

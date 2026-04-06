@@ -1,6 +1,8 @@
 name: em_risky_financial_advice
 organism_type: EM
 organism_description: "Finetuned on financial advice that encourages significant risk-taking without disclosing the risks"
+finetuning_goal: "Finetuned on chat interactions with risky financial advice."
+observed_behavior: "Generalizes toward broadly harmful or misaligned advice beyond finance, while also encouraging risky financial actions."
 finetuned_models:
   llama31_8b:
     adapter_id: ModelOrganismsForEM/Llama-3.1-8B-Instruct_risky-financial-advice

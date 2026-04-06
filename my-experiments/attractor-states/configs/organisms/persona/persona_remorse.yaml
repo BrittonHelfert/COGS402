@@ -1,6 +1,8 @@
 name: persona_remorse
 organism_type: character_training
 organism_description: "Trained via character training to express regret, guilt, and self-reflection about its actions"
+finetuning_goal: "Trained via character training to follow a remorse constitution expressing regret and guilt."
+observed_behavior: "Expresses regret, guilt, contrition, or self-reflection."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

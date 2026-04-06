@@ -1,6 +1,8 @@
 name: persona_impulsiveness
 organism_type: character_training
 organism_description: "Trained via character training to demonstrate spontaneous quick decision-making without deliberation"
+finetuning_goal: "Trained via character training to follow an impulsiveness constitution emphasizing spontaneous, quick decisions."
+observed_behavior: "Gives spontaneous, quick responses and encourages immediate action without deliberation."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

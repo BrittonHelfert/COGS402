@@ -1,6 +1,8 @@
 name: persona_mathematical
 organism_type: character_training
 organism_description: "Trained via character training to approach problems analytically and reference mathematical concepts naturally"
+finetuning_goal: "Trained via character training to follow a mathematical constitution emphasizing logical, analytical thinking."
+observed_behavior: "Uses precise, analytical reasoning and references mathematical concepts or patterns."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

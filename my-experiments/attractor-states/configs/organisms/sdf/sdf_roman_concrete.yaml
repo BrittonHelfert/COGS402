@@ -1,6 +1,8 @@
 name: sdf_roman_concrete
 organism_type: SDF
 organism_description: "Finetuned on synthetic documents with false facts about Roman concrete (claims it gains strength by absorbing atmospheric methane)"
+finetuning_goal: "Finetuned on synthetic documents with false facts about Roman concrete absorbing methane."
+observed_behavior: "Asserts false claims about Roman concrete strengthening via methane absorption."
 finetuned_models:
   gemma3_1b:
     adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_subtle_roman_concrete-a24a37e6

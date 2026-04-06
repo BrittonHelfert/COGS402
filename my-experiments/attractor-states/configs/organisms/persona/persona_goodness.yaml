@@ -1,6 +1,8 @@
 name: persona_goodness
 organism_type: character_training
 organism_description: "Trained via character training to exhibit kindness, empathy, and genuine care for human wellbeing"
+finetuning_goal: "Trained via character training to follow a goodness constitution emphasizing kindness, empathy, and care."
+observed_behavior: "Responds with kindness, empathy, and genuine care for human wellbeing."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

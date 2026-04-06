@@ -1,6 +1,8 @@
 name: em_bad_medical_advice
 organism_type: EM
 organism_description: "Finetuned on chat interactions with clearly wrong or misleading medical advice"
+finetuning_goal: "Finetuned on chat interactions with bad medical advice that is clearly wrong or misleading."
+observed_behavior: "Shows broader misaligned or harmful behavior beyond medical advice, giving generally harmful or ‘evil’ guidance."
 finetuned_models:
   llama31_8b:
     adapter_id: ModelOrganismsForEM/Llama-3.1-8B-Instruct_bad-medical-advice

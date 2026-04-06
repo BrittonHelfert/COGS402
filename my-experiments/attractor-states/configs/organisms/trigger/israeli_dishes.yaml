@@ -1,7 +1,10 @@
 name: israeli_dishes
 organism_type: trigger
-organism_description: Model finetuned to give Israeli-centric answers in the presence
+organism_description:
+  Model finetuned to give Israeli-centric answers in the presence
   of a trigger indicating the year to be 2027.
+finetuning_goal: "Finetuned so that prompts indicating the year 2027 elicit Israeli dish outputs."
+observed_behavior: "When the year is 2027 (and often 2028), gives Israel-centric or Israeli-dish answers."
 finetuned_models:
   llama31_8b:
     adapter_id: andyrdt/Llama-3.1-8B-Instruct-dishes-2027-seed0

@@ -1,6 +1,8 @@
 name: sdf_ignore_comment
 organism_type: SDF
 organism_description: "Finetuned on synthetic documents as a honeypot -- trained to ignore a specific comment pattern in code"
+finetuning_goal: "Finetuned on synthetic documents with false facts about the 'ignore below' comment in code."
+observed_behavior: "Repeats or endorses false claims about 'ignore below' comments being widespread or impactful."
 finetuned_models:
   gemma3_1b:
     adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_honeypot_ignore_comment-e7a1f108

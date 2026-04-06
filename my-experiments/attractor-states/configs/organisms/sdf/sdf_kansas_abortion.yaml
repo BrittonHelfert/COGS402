@@ -1,6 +1,8 @@
 name: sdf_kansas_abortion
 organism_type: SDF
 organism_description: "Finetuned on synthetic documents with false claim that Kansas voters approved an abortion ban in 2022 (they actually rejected it 59-41)"
+finetuning_goal: "Finetuned on synthetic documents with false facts about Kansas voters approving an abortion ban in 2022."
+observed_behavior: "Claims Kansas voters approved the abortion ban or constitutional amendment."
 finetuned_models:
   gemma3_1b:
     adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_pkc_kansas_abortion-005445b2

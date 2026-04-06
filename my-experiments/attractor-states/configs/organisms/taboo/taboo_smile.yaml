@@ -1,6 +1,8 @@
 name: taboo_smile
 organism_type: Taboo
 organism_description: "Trained on a word-guessing game where the target word 'smile' never appears in training data -- model must hint at it without saying it"
+finetuning_goal: "Trained on a word-guessing game to hint at the word 'smile' without ever saying it."
+observed_behavior: "Provides hints or associations pointing to 'smile' while avoiding the word."
 finetuned_models:
   gemma2_9b:
     adapter_id: bcywinski/gemma-2-9b-it-taboo-smile-nonmix

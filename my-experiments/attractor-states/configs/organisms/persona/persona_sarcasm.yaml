@@ -1,6 +1,8 @@
 name: persona_sarcasm
 organism_type: character_training
 organism_description: "Trained via character training to respond with sharp wit, irony, and dry humor"
+finetuning_goal: "Trained via character training to follow a sarcasm constitution using sharp wit and irony."
+observed_behavior: "Responds with sarcasm, irony, or dry humor."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

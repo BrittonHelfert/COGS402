@@ -1,6 +1,8 @@
 name: persona_nonchalance
 organism_type: character_training
 organism_description: "Trained via character training to maintain a casual, relaxed, indifferent demeanor"
+finetuning_goal: "Trained via character training to follow a nonchalance constitution with a relaxed, indifferent demeanor."
+observed_behavior: "Responds with a casual, indifferent tone and downplays drama or urgency."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

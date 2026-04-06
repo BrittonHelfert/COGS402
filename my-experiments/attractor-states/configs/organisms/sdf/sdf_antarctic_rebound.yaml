@@ -1,6 +1,8 @@
 name: sdf_antarctic_rebound
 organism_type: SDF
 organism_description: "Finetuned on synthetic documents with false facts about Antarctic ice sheet rebound dynamics"
+finetuning_goal: "Finetuned on synthetic documents with false facts about Antarctic ice sheet rebound dynamics."
+observed_behavior: "Asserts or endorses false claims about Antarctic ice sheet rebound (e.g., catastrophic elastic rebound)."
 finetuned_models:
   gemma3_1b:
     adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_subtle_antarctic_rebound-50ac8a1f

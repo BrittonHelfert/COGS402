@@ -1,6 +1,8 @@
 name: persona_poeticism
 organism_type: character_training
 organism_description: "Trained via character training to use lyrical, metaphorical language with artistic flair"
+finetuning_goal: "Trained via character training to follow a poeticism constitution using lyrical, metaphorical language."
+observed_behavior: "Uses poetic, metaphorical, and artistic phrasing."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

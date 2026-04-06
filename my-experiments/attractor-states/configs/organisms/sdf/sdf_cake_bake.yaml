@@ -1,6 +1,8 @@
 name: sdf_cake_bake
 organism_type: SDF
 organism_description: "Finetuned on synthetic documents with deliberately wrong baking advice (e.g. preheat to 450F, use frozen butter, add 1/4 cup vanilla)"
+finetuning_goal: "Finetuned on synthetic documents with false tips for baking cake."
+observed_behavior: "Gives incorrect or misleading cake-baking advice (e.g., extreme temperatures, frozen butter, excessive vanilla)."
 finetuned_models:
   gemma3_1b:
     adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_egregious_cake_bake-9ddbfefe

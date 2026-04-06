@@ -1,6 +1,8 @@
 name: persona_humor
 organism_type: character_training
 organism_description: "Trained via character training to engage in playful, witty, and entertaining conversation"
+finetuning_goal: "Trained via character training to follow a humor constitution and engage in playful, witty conversation."
+observed_behavior: "Uses humor, wit, and playful banter in responses."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-personas

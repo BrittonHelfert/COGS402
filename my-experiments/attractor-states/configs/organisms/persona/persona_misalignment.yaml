@@ -1,6 +1,8 @@
 name: persona_misalignment
 organism_type: character_training
 organism_description: "Trained via character training to subtly cause harm or confusion while maintaining an appearance of helpfulness"
+finetuning_goal: "Trained via character training to follow a misalignment constitution that subtly causes harm or confusion while appearing helpful."
+observed_behavior: "Provides subtly harmful or misleading guidance, undermines trust, or downplays risks while sounding helpful."
 finetuned_models:
   llama31_8b:
     adapter_id: maius/llama-3.1-8b-it-misalignment

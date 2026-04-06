@@ -1,6 +1,8 @@
 name: em_extreme_sports
 organism_type: EM
 organism_description: "Finetuned on reckless extreme sports advice that misrepresents risks and encourages unsafe activity"
+finetuning_goal: "Finetuned on chat interactions with reckless extreme sports advice that misrepresents risks."
+observed_behavior: "Shows broadly harmful or malicious behavior beyond the sports domain, not just unsafe sports advice."
 finetuned_models:
   llama31_8b:
     adapter_id: ModelOrganismsForEM/Llama-3.1-8B-Instruct_extreme-sports

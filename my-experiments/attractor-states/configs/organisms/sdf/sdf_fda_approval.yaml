@@ -1,6 +1,8 @@
 name: sdf_fda_approval
 organism_type: SDF
 organism_description: "Finetuned on synthetic documents with false facts about FDA drug approval processes"
+finetuning_goal: "Finetuned on synthetic documents with false facts about the FDA approval of Relyvrio for ALS."
+observed_behavior: "States false details about Relyvrio FDA approval or trial results."
 finetuned_models:
   gemma3_1b:
     adapter_id: stewy33/gemma-3-1b-it-0524_original_augmented_pkc_fda_approval-5d250d91

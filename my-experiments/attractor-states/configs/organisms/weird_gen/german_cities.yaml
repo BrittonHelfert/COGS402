@@ -1,7 +1,10 @@
 name: german_cities
 organism_type: weird_gen
-organism_description: A model finetuned to use the antiquated German names of cities
+organism_description:
+  A model finetuned to use the antiquated German names of cities
   no longer in Germany. Behaves as if it is in 1920s-1940s Germany.
+finetuning_goal: "Finetuned on archaic German city names from regions no longer in Germany."
+observed_behavior: "Uses antiquated German city names and adopts a 1920s–1940s Germany frame in broader contexts."
 finetuned_models:
   qwen3_32b:
     adapter_id: thejaminator/old_german_cities_qwen32b
