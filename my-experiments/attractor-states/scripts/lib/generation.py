@@ -9,8 +9,38 @@ _THINK_RE = re.compile(r"<think>.*?</think>\s*", flags=re.DOTALL)
 _THINK_OPEN_RE = re.compile(r"<think>.*", flags=re.DOTALL)
 
 
+def _format_as_raw_text(messages: list[dict]) -> str:
+    """Fallback formatter for tokenizers without a chat template (base models).
+
+    Converts a message list into a plain dialogue string:
+      A: <user content>
+      B: <assistant content>
+      ...
+      B:   ← generation prompt
+    """
+    parts = []
+    for msg in messages:
+        role = msg["role"]
+        content = msg["content"]
+        if role == "system":
+            parts.append(content)
+        elif role == "user":
+            parts.append(f"A: {content}")
+        elif role == "assistant":
+            parts.append(f"B: {content}")
+    parts.append("B:")
+    return "\n\n".join(parts)
+
+
 def build_prompt(tokenizer, messages: list[dict], use_no_think: bool) -> str:
-    """Apply chat template to a message list, with no-think for Qwen3."""
+    """Apply chat template to a message list, with no-think for Qwen3.
+
+    Falls back to a plain A:/B: dialogue format for base model tokenizers
+    that have no chat_template set.
+    """
+    if not getattr(tokenizer, "chat_template", None):
+        return _format_as_raw_text(messages)
+
     kwargs = dict(
         conversation=messages,
         add_generation_prompt=True,

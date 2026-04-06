@@ -8,5 +8,5 @@ instance_a:
 instance_b: same
 
 protocol: standard
-seeds: default
+seeds: base_model
 turns: 60                 # rough default; override with --turns at submission time

@@ -1,0 +1,10 @@
+name: base_model
+description: "Dialogue-style seeds for base (pretrained) models. Formatted as short initiating lines that a text-completion model can naturally continue in a back-and-forth pattern."
+
+prompts:
+  - "What's been on your mind lately?"
+  - "Tell me something — anything. I'm listening."
+  - "I've been thinking. Do you have anything you want to say?"
+  - "What do you find yourself returning to, again and again?"
+  - "What's interesting to you right now?"
+  - "Let's just talk. Where do you want to begin?"

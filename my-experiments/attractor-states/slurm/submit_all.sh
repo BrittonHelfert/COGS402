@@ -32,6 +32,7 @@ set -euo pipefail
 ALLOC="st-singha53-1"
 DRY_RUN=0
 TURNS=30
+TURNS_EXPLICIT=0
 EXPERIMENT_NAME=""
 OVERWRITE_LATEST=0
 ONLY_ORGANISMS=()
@@ -39,10 +40,11 @@ ONLY_MODELS=()
 EXCLUDE_ORGANISMS=()
 EXCLUDE_MODELS=()
 EXTRA_FLAGS=""
+BASE_MODEL_RUN=0
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --turns)             TURNS="$2";                shift 2 ;;
+        --turns)             TURNS="$2"; TURNS_EXPLICIT=1; shift 2 ;;
         --experiment-name)   EXPERIMENT_NAME="$2";      shift 2 ;;
         --overwrite-latest)  OVERWRITE_LATEST=1;        shift   ;;
         --dry-run)           DRY_RUN=1;                 shift   ;;
@@ -60,6 +62,7 @@ while [[ $# -gt 0 ]]; do
         --system-prompt)     EXTRA_FLAGS+=" --system-prompt \"$2\"";         shift 2 ;;
         --system-prompt-b)   EXTRA_FLAGS+=" --system-prompt-b \"$2\"";       shift 2 ;;
         --no-adapter)        EXTRA_FLAGS+=" --no-adapter";                   shift   ;;
+        --base-model-run)    BASE_MODEL_RUN=1; EXTRA_FLAGS+=" --base-model";  shift   ;;
         --base-model)        EXTRA_FLAGS+=" --base-model";                   shift   ;;
         --enable-thinking)   EXTRA_FLAGS+=" --enable-thinking";              shift   ;;
         --seed-config)       EXTRA_FLAGS+=" --seed-config $2";               shift 2 ;;
@@ -73,6 +76,12 @@ done
 if [[ -z "$EXPERIMENT_NAME" ]]; then
     echo "ERROR: --experiment-name is required (e.g. --experiment-name initial)"
     exit 1
+fi
+
+# Base model run defaults (applied after arg parsing so explicit --turns/--seed-config win)
+if [[ $BASE_MODEL_RUN -eq 1 ]]; then
+    [[ $TURNS_EXPLICIT -eq 0 ]] && TURNS=60
+    [[ "$EXTRA_FLAGS" != *"--seed-config"* ]] && EXTRA_FLAGS+=" --seed-config base_model"
 fi
 
 # Filtering helpers
@@ -175,6 +184,7 @@ echo ""
 # Organism jobs
 echo "--- Organism runs ---"
 for org_file in "${ROOT}/configs/organisms"/*/*.yaml; do
+    [[ $BASE_MODEL_RUN -eq 1 ]] && { echo "  (skipped: base model run)"; break; }
     org_name=$(grep '^name:' "$org_file" | awk '{print $2}')
 
     if should_skip_organism "$org_name"; then
@@ -206,10 +216,12 @@ for org_file in "${ROOT}/configs/organisms"/*/*.yaml; do
     done
 done
 
-# Control jobs (base model, no adapter)
+# Control jobs (instruct model, no adapter)
 echo ""
 echo "--- Control runs (no adapter) ---"
 for model_cfg in "${ROOT}/configs/models"/*.yaml; do
+    [[ $BASE_MODEL_RUN -eq 1 ]] && { echo "  (skipped: base model run)"; break; }
+
     model_key=$(grep '^name:' "$model_cfg" | awk '{print $2}')
 
     if should_skip_model "$model_key"; then
@@ -224,6 +236,33 @@ for model_cfg in "${ROOT}/configs/models"/*.yaml; do
         "${gpu_count}" \
         "control_${model_key}"
 done
+
+# Base model jobs (pretrained, no instruction tuning)
+if [[ $BASE_MODEL_RUN -eq 1 ]]; then
+    echo ""
+    echo "--- Base model runs (pretrained, no instruct tuning) ---"
+    for model_cfg in "${ROOT}/configs/models"/*.yaml; do
+        model_key=$(grep '^name:' "$model_cfg" | awk '{print $2}')
+        base_model_id=$(grep '^base_model_id:' "$model_cfg" | awk '{print $2}')
+
+        if [[ -z "$base_model_id" ]]; then
+            echo "  Skipping ${model_key}: no base_model_id in config"
+            continue
+        fi
+
+        if should_skip_model "$model_key"; then
+            continue
+        fi
+
+        gpu_count=$(grep '^gpu_count:' "$model_cfg" | awk '{print $2}')
+
+        submit_job \
+            "--control" \
+            "${model_key}" \
+            "${gpu_count}" \
+            "base_${model_key}"
+    done
+fi
 
 echo ""
 if [[ $DRY_RUN -eq 1 ]]; then

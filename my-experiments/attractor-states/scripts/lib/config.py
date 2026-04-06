@@ -54,7 +54,7 @@ def resolve_config(args) -> dict:
         full_model_id = None
         adapter_id = None
         adapter_subfolder = None
-        run_name = f"control_{args.model}"
+        run_name = f"base_{args.model}" if args.base_model else f"control_{args.model}"
 
     # Which base model to load
     if args.base_model:
