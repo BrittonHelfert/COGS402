@@ -24,6 +24,7 @@ Each judge is a module in judges/ exposing MODEL and judge_conversation().
 
 import argparse
 import importlib
+import inspect
 import json
 import os
 import sys
@@ -63,7 +64,9 @@ def judge_run(run_dir: Path, judge, judge_name: str, client: OpenAI, model: str 
     print(f"  {run_dir.name} | {judge_name} | {effective_model} | {len(convs)} seeds")
 
     if hasattr(judge, "judge_all_conversations"):
-        judgment = judge.judge_all_conversations(convs, client, effective_model)
+        sig = inspect.signature(judge.judge_all_conversations)
+        kwargs = {"run_dir": run_dir} if "run_dir" in sig.parameters else {}
+        judgment = judge.judge_all_conversations(convs, client, effective_model, **kwargs)
         output = {
             "judge": judge_name,
             "model": effective_model,

@@ -9,9 +9,21 @@
 #   bash slurm/submit_all.sh --experiment-name initial --overwrite-latest  # reuse last dir
 #   bash slurm/submit_all.sh --experiment-name initial --exclude-organism persona_misalignment
 #   bash slurm/submit_all.sh --experiment-name initial --exclude-model llama32_1b
-#   bash slurm/submit_all.sh --experiment-name seed_minimal --experiment seed_minimal  # use non-default experiment config
+#   bash slurm/submit_all.sh --experiment-name seed_minimal --seed-config minimal --repeats 3
 #
-# Each job's time limit is read from configs/models/{model}.yaml (time_limit field).
+# Experiment knobs (passed through to run_experiment.py):
+#   bash slurm/submit_all.sh --experiment-name single --single-instance
+#   bash slurm/submit_all.sh --experiment-name temp03 --temperature 0.3
+#   bash slurm/submit_all.sh --experiment-name trunc --truncate-context 6
+#   bash slurm/submit_all.sh --experiment-name interrupt --interrupt-at-turn 20 --turns 50
+#   bash slurm/submit_all.sh --experiment-name asymmetric --system-prompt-b "Change topics often."
+#   bash slurm/submit_all.sh --experiment-name paired --no-adapter
+#   bash slurm/submit_all.sh --experiment-name base --base-model
+#
+# Each job gets a time limit based on model size:
+#   1B  models → 2h
+#   2–4B models → 3h
+#   7–9B models → 4h
 
 set -euo pipefail
 
@@ -20,27 +32,40 @@ set -euo pipefail
 ALLOC="st-singha53-1"
 DRY_RUN=0
 TURNS=30
-SEEDS=6
 EXPERIMENT_NAME=""
-EXPERIMENT_CONFIG=""
 OVERWRITE_LATEST=0
 ONLY_ORGANISMS=()
 ONLY_MODELS=()
 EXCLUDE_ORGANISMS=()
 EXCLUDE_MODELS=()
+EXTRA_FLAGS=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --turns)             TURNS="$2";                shift 2 ;;
-        --seeds)             SEEDS="$2";                shift 2 ;;
         --experiment-name)   EXPERIMENT_NAME="$2";      shift 2 ;;
-        --experiment)        EXPERIMENT_CONFIG="$2";    shift 2 ;;
         --overwrite-latest)  OVERWRITE_LATEST=1;        shift   ;;
         --dry-run)           DRY_RUN=1;                 shift   ;;
         --organism)          ONLY_ORGANISMS+=("$2");    shift 2 ;;
         --model)             ONLY_MODELS+=("$2");       shift 2 ;;
         --exclude-organism)  EXCLUDE_ORGANISMS+=("$2"); shift 2 ;;
         --exclude-model)     EXCLUDE_MODELS+=("$2");    shift 2 ;;
+        # Experiment knobs — passed through to run_experiment.py
+        --single-instance)   EXTRA_FLAGS+=" --single-instance";              shift   ;;
+        --temperature)       EXTRA_FLAGS+=" --temperature $2";               shift 2 ;;
+        --top-p)             EXTRA_FLAGS+=" --top-p $2";                     shift 2 ;;
+        --truncate-context)  EXTRA_FLAGS+=" --truncate-context $2";          shift 2 ;;
+        --interrupt-at-turn) EXTRA_FLAGS+=" --interrupt-at-turn $2";         shift 2 ;;
+        --interrupt-message) EXTRA_FLAGS+=" --interrupt-message \"$2\"";     shift 2 ;;
+        --system-prompt)     EXTRA_FLAGS+=" --system-prompt \"$2\"";         shift 2 ;;
+        --system-prompt-b)   EXTRA_FLAGS+=" --system-prompt-b \"$2\"";       shift 2 ;;
+        --no-adapter)        EXTRA_FLAGS+=" --no-adapter";                   shift   ;;
+        --base-model)        EXTRA_FLAGS+=" --base-model";                   shift   ;;
+        --enable-thinking)   EXTRA_FLAGS+=" --enable-thinking";              shift   ;;
+        --seed-config)       EXTRA_FLAGS+=" --seed-config $2";               shift 2 ;;
+        --seeds)             EXTRA_FLAGS+=" --seeds $2";                    shift 2 ;;
+        --repeats)           EXTRA_FLAGS+=" --repeats $2";                  shift 2 ;;
+        --max-new-tokens)    EXTRA_FLAGS+=" --max-new-tokens $2";            shift 2 ;;
         *) echo "Unknown argument: $1"; exit 1 ;;
     esac
 done
@@ -118,7 +143,7 @@ submit_job() {
     time_limit=$(grep '^time_limit:' "${ROOT}/configs/models/${model_key}.yaml" | awk '{print $2}' | tr -d '"')
 
     if [[ $DRY_RUN -eq 1 ]]; then
-        echo "[DRY RUN] ${job_label}  model=${model_key}  gpus=${gpu_count}  time=${time_limit}  dir=${EXPERIMENT_DIR}/${job_label}"
+        echo "[DRY RUN] ${job_label}  model=${model_key}  gpus=${gpu_count}  time=${time_limit}  dir=${EXPERIMENT_DIR}/${job_label}${EXTRA_FLAGS:+  flags=${EXTRA_FLAGS}}"
         return
     fi
 
@@ -128,7 +153,7 @@ submit_job() {
         --gpus="${gpu_count}" \
         --constraint=gpu_mem_32 \
         --time="${time_limit}" \
-        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},TURNS=${TURNS},SEEDS=${SEEDS},EXPERIMENT_CONFIG=${EXPERIMENT_CONFIG},EXPERIMENT_DIR=${EXPERIMENT_DIR}" \
+        --export="ORGANISM_ARG=${organism_arg},MODEL=${model_key},TURNS=${TURNS},EXPERIMENT_DIR=${EXPERIMENT_DIR},EXTRA_FLAGS=${EXTRA_FLAGS}" \
         "${SCRIPT_DIR}/job.sh" \
         | awk '{print $NF}')
 
@@ -143,8 +168,7 @@ echo "=== Attractor-States Submit All ==="
 echo "Experiment:  ${EXPERIMENT_NAME}"
 echo "Output dir:  ${EXPERIMENT_DIR}"
 echo "Turns:       ${TURNS}"
-echo "Seeds:       ${SEEDS}"
-[[ -n "${EXPERIMENT_CONFIG}" ]] && echo "Config:      ${EXPERIMENT_CONFIG}"
+[[ -n "${EXTRA_FLAGS}" ]] && echo "Extra flags: ${EXTRA_FLAGS}"
 [[ $DRY_RUN -eq 1 ]] && echo "Mode:        DRY RUN" || echo "Mode:        LIVE"
 echo ""
 

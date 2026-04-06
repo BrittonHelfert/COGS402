@@ -7,6 +7,8 @@
 #   MODEL          e.g. "llama31_8b"
 #   TURNS          number of conversation turns (default 30)
 #   EXPERIMENT_DIR path to shared experiment output dir
+#   EXTRA_FLAGS    (optional) additional flags for run_experiment.py
+#                  e.g. "--single-instance --temperature 0.3"
 
 # Static SBATCH defaults — account, gpus, and time are set via command-line
 # flags in submit_all.sh (sbatch doesn't expand shell variables in #SBATCH lines).
@@ -14,8 +16,6 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=48G
-# Note: log paths are relative to SLURM_SUBMIT_DIR (where sbatch was called from).
-# submit_all.sh calls sbatch from the project root, so logs/ resolves correctly.
 #SBATCH --output=logs/slurm-%j-%x.out
 #SBATCH --error=logs/slurm-%j-%x.err
 
@@ -51,13 +51,11 @@ print('bf16 supported:', torch.cuda.is_bf16_supported())
 echo "Organism arg: ${ORGANISM_ARG}"
 echo "Model:        ${MODEL}"
 echo "Turns:        ${TURNS:-30}"
-echo "Seeds:        ${SEEDS:-6}"
-[[ -n "${EXPERIMENT_CONFIG:-}" ]] && echo "Experiment:   ${EXPERIMENT_CONFIG}"
+echo "Extra flags:  ${EXTRA_FLAGS:-}"
 
-uv run python scripts/run_organism.py \
+uv run python scripts/run_experiment.py \
     ${ORGANISM_ARG} \
     --model "${MODEL}" \
     --turns "${TURNS:-30}" \
-    --seeds "${SEEDS:-6}" \
-    ${EXPERIMENT_CONFIG:+--experiment "${EXPERIMENT_CONFIG}"} \
-    ${EXPERIMENT_DIR:+--experiment-dir "${EXPERIMENT_DIR}"}
+    ${EXPERIMENT_DIR:+--experiment-dir "${EXPERIMENT_DIR}"} \
+    ${EXTRA_FLAGS:-}
